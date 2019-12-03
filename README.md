@@ -1,6 +1,6 @@
 # Quoridor
 A repository for my Quoridor game for GLO1901 project\
-URL: https://github.com/SamuelYergeau/GLO1901_Projet2
+URL: https://github.com/SamuelYergeau/GLO1901_projet3
 
 ## To setup your Github account:
 the commits are evaluated, so make sure we can know who did the commit:
@@ -15,7 +15,7 @@ the commits are evaluated, so make sure we can know who did the commit:
 ## To set up the git project:
 (à partir d'un nouveau dossier):
 1. git init
-2. git remote add quoridor https://github.com/SamuelYergeau/GLO1901_Projet2
+2. git remote add quoridor https://github.com/SamuelYergeau/GLO1901_Projet3
 3. git pull quoridor master
 4. git push --set-upstream quoridor master
 5. git push quoridor\
