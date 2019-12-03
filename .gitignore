@@ -1,0 +1,4 @@
+*.git
+*.txt
+*.vsdx
+__pycache__/
