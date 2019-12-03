@@ -59,27 +59,36 @@ def construire_graphe(joueurs, murs_horizontaux, murs_verticaux):
     """
     graphe = graphe_helper(murs_horizontaux, murs_verticaux)
 
-    # retirer tous les arcs qui pointent vers les positions des joueurs
-    # et ajouter les sauts en ligne droite ou en diagonale, selon le cas
-    for joueur in map(tuple, joueurs):
+    # s'assurer que les positions des joueurs sont bien des tuples (et non des listes)
+    j1, j2 = tuple(joueurs[0]), tuple(joueurs[1])
 
-        for prédécesseur in list(graphe.predecessors(joueur)):
-            graphe.remove_edge(prédécesseur, joueur)
+    # traiter le cas des joueurs adjacents
+    if j2 in graphe.successors(j1) or j1 in graphe.successors(j2):
 
-            # si admissible, ajouter un lien sauteur
-            successeur = (2*joueur[0]-prédécesseur[0], 2*joueur[1]-prédécesseur[1])
+        # retirer les liens entre les joueurs
+        graphe.remove_edge(j1, j2)
+        graphe.remove_edge(j2, j1)
 
-            if successeur in graphe.successors(joueur) and successeur not in joueurs:
-                # ajouter un saut en ligne droite
-                graphe.add_edge(prédécesseur, successeur)
+        def ajouter_lien_sauteur(noeud, voisin):
+            """
+            :param noeud: noeud de départ du lien.
+            :param voisin: voisin par dessus lequel il faut sauter.
+            """
+            saut = 2*voisin[0]-noeud[0], 2*voisin[1]-noeud[1]
+
+            if saut in graphe.successors(voisin):
+                # ajouter le saut en ligne droite
+                graphe.add_edge(noeud, saut)
 
             else:
-                # ajouter les liens en diagonal
-                for successeur in list(graphe.successors(joueur)):
-                    if prédécesseur != successeur and successeur not in joueurs:
-                        graphe.add_edge(prédécesseur, successeur)
+                # ajouter les sauts en diagonale
+                for saut in graphe.successors(voisin):
+                    graphe.add_edge(noeud, saut)
 
-    # ajouter les noeuds objectifs des deux joueurs
+        ajouter_lien_sauteur(j1, j2)
+        ajouter_lien_sauteur(j2, j1)
+
+    # ajouter les destinations finales des joueurs
     for x in range(1, 10):
         graphe.add_edge((x, 9), 'B1')
         graphe.add_edge((x, 1), 'B2')
@@ -234,16 +243,16 @@ class Quoridor:
         Produit la représentation en art ascii correspondant à l'état actuel de la partie
         Returns:
             board (str)
-                Une représentation en art ascii de la table de jeu
+                Une représentation en art ascii de la root de jeu
         """
-        # définition des contraintes du tableau de jeu
+        # définition des contraintes du rootau de jeu
         # permet de modifier la taille du jeu si désiré
         board_positions = 9
         spacing_horizontal = ((board_positions * 4) - 1)
-        # tableaux d'équivalences entre les adresses du jeu et notre tableau
+        # rootaux d'équivalences entre les adresses du jeu et notre rootau
         game_pos_x = range(1, (board_positions * 4), 4)
         game_pos_y = range(((board_positions - 1) * 2), -1, -2)
-        # Création du tableau de jeu
+        # Création du rootau de jeu
         # en-tête
         board = [
             "légende: 1={} 2={}\n".format(self.joueurs[0]['nom'], self.joueurs[1]['nom']) +
@@ -277,12 +286,12 @@ class Quoridor:
             if ((0 > position[0] > board_positions) or
                     (0 > position[1] > board_positions)):
                 raise IndexError("Adresse du joueur invalide!")
-            # calcul du décallage relatif au tableau
+            # calcul du décallage relatif au rootau
             indice = (game_pos_x[(position[0] - 1)] +
                       (game_pos_y[(position[1] - 1)] * spacing_horizontal))
             decallage = ((((indice + 1) // spacing_horizontal) * 2) + 2)
             indice += decallage
-            # Insérer le personnage dans le tableau de jeu
+            # Insérer le personnage dans le rootau de jeu
             board[indice] = str(num + 1)
         # insertion des murs horizontaux dans board
         for murh in self.murh:
@@ -512,7 +521,7 @@ class TestQuoridor(unittest.TestCase):
                 - QuoridorError si le total des murs placés et plaçables n'est pas 20
                 - QuoridorError si la position d'un mur est invalide
         """
-        # Dresser des tableaux connus pour des constructions connues
+        # Dresser des rootaux connus pour des constructions connues
         nouveau_jeu = ("légende: 1=foo 2=bar\n" +
                        "   -----------------------------------\n" +
                        "9 | .   .   .   .   2   .   .   .   . |\n" +
@@ -534,7 +543,7 @@ class TestQuoridor(unittest.TestCase):
                        "1 | .   .   .   .   1   .   .   .   . |\n" +
                        "--|-----------------------------------\n" +
                        "  | 1   2   3   4   5   6   7   8   9\n")
-        partie_existante_tableau = ("légende: 1=foo 2=bar\n" +
+        partie_existante_rootau = ("légende: 1=foo 2=bar\n" +
                                     "   -----------------------------------\n" +
                                     "9 | .   .   .   .   .   .   .   .   . |\n" +
                                     "  |                                   |\n" +
@@ -569,7 +578,7 @@ class TestQuoridor(unittest.TestCase):
         # Test de création d'une partie déjà existante
         self.assertEqual(str(Quoridor(partie_existante_etat['joueurs'],
                                       partie_existante_etat['murs'])),
-                         partie_existante_tableau)
+                         partie_existante_rootau)
         # Test de l'erreur soulevée si l'argument 'joueur' n'est pas itérable
         self.assertRaisesRegex(QuoridorError, "joueurs n'est pas iterable!", Quoridor, 2)
         # Test de l'erreur soulevée si l'argument 'joueur' n'est pas de longueur 2

@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 *.git
 *.txt
 *.vsdx
-=======
-*.git
-*.txt
-*.vsdx
->>>>>>> 5406a72b4899c9aa8df2bff46b36b3a5985bbc14
 __pycache__/
