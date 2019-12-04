@@ -8,6 +8,7 @@ contient les classes:
 import unittest
 import copy
 import networkx as nx
+import random
 
 
 def graphe_helper(murs_horizontaux, murs_verticaux):
@@ -406,6 +407,19 @@ class Quoridor:
                                         objectifs[(joueur - 1)])[1]
         # jouer le coup
         self.déplacer_jeton(joueur, coup_a_jouer)
+
+        """SECTION STRATÉGIE DE JEU"""
+        # 1) Utililiser le hasard pour décider qu'elle mouvement faire
+        # Obtenir un élément au hasard 
+        listedescoup = [] 
+        ma_liste = ["D", "MH", "MV"]   
+        i = random.randint(0, len(ma_liste) - 1)  
+        elem = ma_liste[i]
+        listedescoup.append(elem)
+
+        #2) Variez la probabilité de choisir le placement d'un mur en fonction du nombre de murs qui restent à placer.
+
+
 
 
     def partie_terminée(self):
