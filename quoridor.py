@@ -418,6 +418,10 @@ class Quoridor:
         listedescoup.append(elem)
 
         #2) Variez la probabilité de choisir le placement d'un mur en fonction du nombre de murs qui restent à placer.
+        murplacer = 0
+        for frequence in listedescoup:
+            if frequence == "MH" or "MV":
+                murplacer += 1
 
 
 
