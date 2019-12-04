@@ -30,6 +30,8 @@ import argparse
 import api
 import quoridorx
 import quoridor
+import tkinter as tk
+from tkinter import simpledialog as sd
 
 
 # Storer le id
@@ -316,8 +318,22 @@ def loop(joueurs, jeu):
                 print(qe)
                 continue
 
+def loop_graphique_neuve():
+    window = tk.Tk()
+    joueur1 = str(sd.askstring("Playername",
+                               "player 1 name? ",
+                               parent=window,))
+    joueur2 = str(sd.askstring("Playername",
+                               "player 2 name? ",
+                               joueur1parent=window,))
+    #window.destroy()
+    quoridorx.QuoridorX([joueur1, joueur2])
+    tk.mainloop()
+
+
 
 if __name__ == "__main__":
+    loop_graphique_neuve()
     """#  écouter si le joueur veut commencer une partie
     COM = analyser_commande()
     # vérifier si l'argument lister a été appelé
@@ -329,7 +345,7 @@ if __name__ == "__main__":
         GAME_ID += debuter(COM)
         # boucler sur la logique de la partie
         boucler()"""
-    ETAT_JEU = {
+    """ETAT_JEU = {
         "joueurs": [
             {"nom": "idul", "murs": 7, "pos": [5, 6]},
             {"nom": "automate", "murs": 3, "pos": [5, 7]}
@@ -359,7 +375,7 @@ if __name__ == "__main__":
         JEU = quoridorx.QuoridorX(ETAT_JEU['joueurs'], ETAT_JEU['murs'])
         loop(["joueur1", "joueur2"], JEU)
     else:
-        print("choix invalide!")
+        print("choix invalide!")"""
     
     
 

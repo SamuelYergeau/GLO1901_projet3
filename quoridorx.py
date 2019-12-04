@@ -426,6 +426,7 @@ class QuoridorX(quoridor.Quoridor):
 
 
 
+
 if __name__ == '__main__':
     partie_existante_etat = {
             "joueurs": [
