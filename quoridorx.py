@@ -8,8 +8,8 @@ import copy
 
 
 class QuoridorX(quoridor.Quoridor):
-
-
+    
+    
     def __init__(self, joueurs, murs=None):
         """initialisation de l'affichage du jeu
         
@@ -18,7 +18,6 @@ class QuoridorX(quoridor.Quoridor):
         
         Keyword Arguments:
             murs {[type]} -- [description] (default: {None})
-        TODO: ajouter une visualisation des murs que chaque joueurs peuvent encore placer
         TODO: améliorer le look de absolument tout
         TODO: rendre toutes les grandeurs scalables avec les fenêtres
         """
@@ -39,77 +38,31 @@ class QuoridorX(quoridor.Quoridor):
         case_jeu_dimensions = [3, 3]
         mur_h_dimensions = [3, 1]
         mur_v_dimensions = [1, 3]
-        # Make Header
-        tk.Label(self.root,
-                 width=17,
-                 height=1,
-                 text="Légende: 1={} 2={}".format(self.joueurs[0]['nom'], self.joueurs[1]['nom'])
-                 ).grid(row=1, column=2)
         
         # make row labels
-        self.row_label_frame = tk.Frame(self.root, background='brown' ,borderwidth=2 , relief=tk.RIDGE)
-        self.row_label_frame.grid(column=1,
-                                  columnspan=1,
-                                  row=4,
-                                  rowspan=17,
-                                  sticky='n')
-        for r in range(1, 18):
-            if (r % 2) != 0:
-                case = tk.Frame(self.row_label_frame,
-                                background='blue',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                case.grid(row = r, column = 1)
-                tk.Label(case,
-                         width = 1,
-                         height=3,
-                         text=str(10-(((r + 1) // 2)))).grid(row=(r), column=1)
-            else:
-                case = tk.Frame(self.row_label_frame,
-                                background='blue',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                case.grid(row =r, column=1)
-                tk.Label(case,
-                         width = 1,
-                         height=1,
-                         text="").grid(row=(r), column=1)
+        for r in range(1, 10):
+            tk.Label(self.root,
+                     #width=1,
+                     #height=1,
+                     text=str(10-r)).grid(row=(3 + ((r - 1) * 2)),
+                                          column=1)
+        
+
         
         # Make column labels
-        self.column_label_frame = tk.Frame(self.root, background='brown' ,borderwidth=2 , relief=tk.RIDGE)
-        self.column_label_frame.grid(column=2,
-                                     columnspan=17,
-                                     row=21,
-                                     rowspan=1,
-                                     sticky='n')
-        for c in range(1, 18):
-            if (c % 2) != 0:
-                case = tk.Frame(self.column_label_frame,
-                                background='blue',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                case.grid(row = 1, column = c)
-                tk.Label(case,
-                         width = 3,
-                         height=1,
-                         text=str((((c + 1) // 2)))).grid(row=1, column=c)
-            else:
-                case = tk.Frame(self.column_label_frame,
-                                background='blue',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                case.grid(row =1, column=c)
-                tk.Label(case,
-                         width = 1,
-                         height=1,
-                         text="").grid(row=1, column=c)
+        for r in range(1, 10):
+            tk.Label(self.root,
+                     width=3,
+                     height=1,
+                     text=str(r)).grid(row=20,
+                                       column=(2 * r))
 
         # Afficher les murs que chaque joueurs peuvent encore placer
-        for num, r in enumerate([24, 3]):
+        for num, r in enumerate([23, 2]):
             # Murs des 2 joueurs
             tk.Label(self.root,
                      text="Joueur {} = {}".format((num + 1), self.joueurs[num]['nom']),
-                     height=1).grid(column=3,row=(r - 1))
+                     height=1).grid(column=10,row=(r - 1))
             self.murholders[num] = tk.Frame(self.root,
                                     background='grey',
                                     borderwidth=2,
@@ -119,8 +72,6 @@ class QuoridorX(quoridor.Quoridor):
                                       row=r,
                                       rowspan=1,
                                       sticky='n')
-            #tk.Label(self.murholders[num],
-            #         text="Joueur {}".format((num + 1))).grid(row=1, column=1)
             for jmurs in range(2, (self.joueurs[(num)]['murs'] + 2)):
                 tk.Label(self.murholders[num],
                         width=mur_v_dimensions[0],
@@ -135,7 +86,7 @@ class QuoridorX(quoridor.Quoridor):
         self.board = tk.Frame(self.root, background='brown' ,borderwidth=2 , relief=tk.RIDGE)
         self.board.grid(column=2,
                         columnspan=17,
-                        row=4,
+                        row=3,
                         rowspan=17,
                         sticky='n')
 
@@ -146,91 +97,90 @@ class QuoridorX(quoridor.Quoridor):
                 # Cases de jeu principales
                 for numero, joueur in enumerate(self.joueurs):
                     if (game_pos_x[joueur['pos'][0]], game_pos_y[joueur['pos'][1]]) == (i, j):
-                        case = tk.Frame(self.board,
-                                        background='blue',
-                                        borderwidth=1,
-                                        relief=tk.FLAT)
-                        case.grid(row=j, column =i)
-                        tk.Label(case,
+                        tk.Label(self.board,
                                  width = case_jeu_dimensions[0],
                                  height=case_jeu_dimensions[1],
+                                 relief=tk.FLAT,
+                                 borderwidth=1,
                                  background='#ffcc99',
                                  text=str(numero + 1)).grid(row=j, column =i)
                         break
                     else:
                         if (i in game_pos_x) and (j in game_pos_y):
-                            case = tk.Frame(self.board,
-                                            background='blue',
-                                            borderwidth=1,
-                                            relief=tk.FLAT)  
-                            case.grid(row=j, column =i)
-                            tk.Label(case,
+                            tk.Label(self.board,
                                     width = case_jeu_dimensions[0],
                                     height=case_jeu_dimensions[1],
-                                    background='#bfbfbf',
+                                    relief=tk.FLAT,
+                                    borderwidth=1,
+                                    background='#f9f9eb',
                                     text='').grid(row=j, column =i)
                 
                 # Murs horizontaux
                 if len(self.murh) > 0:
                     for wallh in self.murh:
                         if (game_pos_x[wallh[0]], game_pos_y[wallh[1]]) == (i, (j - 1)):
-                            case = tk.Frame(self.board,
+                            """case = tk.Frame(self.board,
                                             background='grey',
                                             borderwidth=1,
                                             relief=tk.FLAT)  
-                            case.grid(row=j, column =i)
-                            tk.Label(case,
+                            case.grid(row=j, column =i)"""
+                            tk.Label(self.board,
                                     width = mur_h_dimensions[0],
                                     height=mur_h_dimensions[1],
+                                    borderwidth=1,
+                                    relief=tk.FLAT,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             # remplissage de la case vide
-                            case = tk.Frame(self.board,
+                            """case = tk.Frame(self.board,
                                             background='grey',
                                             borderwidth=1,
                                             relief=tk.FLAT)  
-                            case.grid(row=j, column =(i + 1))
-                            tk.Label(case,
+                            case.grid(row=j, column =(i + 1))"""
+                            tk.Label(self.board,
                                     width = 1,
                                     height=1,
+                                    borderwidth=1,
+                                    relief=tk.FLAT,
                                     background='grey',
                                     text='').grid(row=j, column =(i + 1))
                             break
                         # décallage: x + 1
                         elif (game_pos_x[(wallh[0] + 1)], game_pos_y[wallh[1]]) == (i, (j - 1)):
-                            case = tk.Frame(self.board,
+                            """case = tk.Frame(self.board,
                                             background='grey',
                                             borderwidth=1,
                                             relief=tk.FLAT)  
-                            case.grid(row=j, column =i)
-                            tk.Label(case,
+                            case.grid(row=j, column =i)"""
+                            tk.Label(self.board,
                                     width = mur_h_dimensions[0],
                                     height=mur_h_dimensions[1],
+                                    borderwidth=1,
+                                    relief=tk.FLAT,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             break
                         else:
                             if (i in game_pos_x) and (j in game_pos_mur):
-                                case = tk.Frame(self.board,
+                                """case = tk.Frame(self.board,
                                                 background='brown',
                                                 borderwidth=1,
                                                 relief=tk.FLAT)  
-                                case.grid(row=j, column =i)
-                                tk.Label(case,
+                                case.grid(row=j, column =i)"""
+                                tk.Label(self.board,
                                         width = mur_h_dimensions[0],
                                         height=mur_h_dimensions[1],
                                         background='brown',
+                                        borderwidth=1,
+                                        relief=tk.FLAT,
                                         text='').grid(row=j, column =i)
                 else:
                     if (i in game_pos_x) and (j in game_pos_mur):
-                        case = tk.Frame(self.board,
-                                        background='brown',
-                                        borderwidth=1,
-                                        relief=tk.FLAT)  
-                        case.grid(row=j, column =i)
-                        tk.Label(case,
+                        tk.Label(self.board,
                                  width = mur_h_dimensions[0],
                                  height=mur_h_dimensions[1],
+                                 borderwidth=1,
+                                 relief=tk.FLAT,
                                  background='brown',
                                  text='').grid(row=j, column =i)
                 
@@ -238,63 +188,68 @@ class QuoridorX(quoridor.Quoridor):
                 if len(self.murv) > 0:
                     for wallv in self.murv:
                         if (game_pos_x[wallv[0]], game_pos_y[wallv[1]]) == ((i + 1), j):
-                            case = tk.Frame(self.board,
+                            """case = tk.Frame(self.board,
                                             background='grey',
                                             borderwidth=1,
                                             relief=tk.FLAT)
-                            case.grid(row=j, column =i)
-                            tk.Label(case,
+                            case.grid(row=j, column =i)"""
+                            tk.Label(self.board,
                                     width = mur_v_dimensions[0],
                                     height=mur_v_dimensions[1],
+                                    borderwidth=1,
+                                    relief=tk.FLAT,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             # remplissage de la case vide
-                            case = tk.Frame(self.board,
+                            """case = tk.Frame(self.board,
                                             background='grey',
                                             borderwidth=1,
                                             relief=tk.FLAT)
-                            case.grid(row=(j - 1), column =i)
-                            tk.Label(case,
+                            case.grid(row=(j - 1), column =i)"""
+                            tk.Label(self.board,
                                     width = 1,
                                     height=1,
+                                    borderwidth=1,
+                                    relief=tk.FLAT,
                                     background='grey',
                                     text='').grid(row=(j - 1), column =i)
                             break
                         # décallage: y + 1
                         elif (game_pos_x[wallv[0]], game_pos_y[(wallv[1] + 1)]) == ((i + 1), j):
-                            case = tk.Frame(self.board,
+                            """case = tk.Frame(self.board,
                                             background='grey',
                                             borderwidth=1,
                                             relief=tk.FLAT)  
-                            case.grid(row=j, column =i)
-                            tk.Label(case,
+                            case.grid(row=j, column =i)"""
+                            tk.Label(self.board,
                                     width = mur_v_dimensions[0],
                                     height=mur_v_dimensions[1],
+                                    borderwidth=1,
+                                    relief=tk.FLAT,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             break
                         else:
                             if (i in game_pos_mur) and (j in game_pos_y):
-                                case = tk.Frame(self.board,
+                                """case = tk.Frame(self.board,
                                                 background='brown',
                                                 borderwidth=1,
                                                 relief=tk.FLAT)
-                                case.grid(row=j, column =i)
-                                tk.Label(case,
+                                case.grid(row=j, column =i)"""
+                                tk.Label(self.board,
                                         width = mur_v_dimensions[0],
                                         height=mur_v_dimensions[1],
+                                        borderwidth=1,
+                                        relief=tk.FLAT,
                                         background='brown',
                                         text=' ').grid(row=j, column =i)
                 else:
                     if (i in game_pos_mur) and (j in game_pos_y):
-                        case = tk.Frame(self.board,
-                                        background='brown',
-                                        borderwidth=1,
-                                        relief=tk.FLAT)  
-                        case.grid(row=j, column =i)
-                        tk.Label(case,
+                        tk.Label(self.board,
                                  width = mur_v_dimensions[0],
                                  height=mur_v_dimensions[1],
+                                 borderwidth=1,
+                                 relief=tk.FLAT,
                                  background='brown',
                                  text='').grid(row=j, column =i)
 
@@ -316,30 +271,22 @@ class QuoridorX(quoridor.Quoridor):
             print(self.joueurs[i]['pos'])
             if self.oldjoueurs[i]['pos'] != self.joueurs[i]['pos']:
                 #effacer l'ancienne position du joueur
-                oldcase = tk.Frame(self.board,
-                                background='blue',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                oldcase.grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
-                             column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
-                tk.Label(oldcase,
+                tk.Label(self.board,
                          width = case_jeu_dimensions[0],
                          height=case_jeu_dimensions[1],
-                         background='#bfbfbf',
+                         borderwidth=1,
+                         relief=tk.FLAT,
+                         background='#f9f9eb',
                          text='').grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
                                        column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
                 
                 self.oldjoueurs[i]['pos'] = self.joueurs[i]['pos']
                 
-                newcase = tk.Frame(self.board,
-                                   background='blue',
-                                   borderwidth=1,
-                                   relief=tk.FLAT)
-                newcase.grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
-                             column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
-                tk.Label(newcase,
+                tk.Label(self.board,
                          width=case_jeu_dimensions[0],
                          height=case_jeu_dimensions[1],
+                         borderwidth=1,
+                         relief=tk.FLAT,
                          background='#ffcc99',
                          text=str(i + 1)).grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
                                                column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
@@ -347,28 +294,20 @@ class QuoridorX(quoridor.Quoridor):
         # Vérifier si des murs horizontaux ont été placés
         if self.nombremurh < len(self.murh):
             for i in range(2):
-                case = tk.Frame(self.board,
-                                background='grey',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                case.grid(row=(game_pos_y[self.murh[-1][1]] + 1),
-                          column=(game_pos_x[self.murh[-1][0]] + (2 * i)))
-                tk.Label(case,
+                tk.Label(self.board,
                         width=mur_h_dimensions[0],
                         height=mur_h_dimensions[1],
+                        borderwidth=1,
+                        relief=tk.FLAT,
                         background='grey',
                         text='').grid(row=(game_pos_y[self.murh[-1][1]] + 1),
                                       column=(game_pos_x[self.murh[-1][0]] + (2 * i)))
             # Remplissage de la case vide
-            case = tk.Frame(self.board,
-                            background='grey',
-                            borderwidth=1,
-                            relief=tk.FLAT)  
-            case.grid(row=(game_pos_y[self.murh[-1][1]] + 1),
-                      column=(game_pos_x[self.murh[-1][0]] + 1))
-            tk.Label(case,
+            tk.Label(self.board,
                      width = 1,
                      height=1,
+                     borderwidth=1,
+                     relief=tk.FLAT,
                      background='grey',
                      text='').grid(row=(game_pos_y[self.murh[-1][1]] + 1),
                                    column=(game_pos_x[self.murh[-1][0]] + 1))
@@ -377,28 +316,20 @@ class QuoridorX(quoridor.Quoridor):
         # Vérifier si des murs verticaux ont été placés
         if self.nombremurv < len(self.murv):
             for i in range(2):
-                case = tk.Frame(self.board,
-                                background='grey',
-                                borderwidth=1,
-                                relief=tk.FLAT)
-                case.grid(row=(game_pos_y[self.murv[-1][1]] - (2 * i)),
-                          column=(game_pos_x[self.murv[-1][0]] - 1))
-                tk.Label(case,
+                tk.Label(self.board,
                         width=mur_v_dimensions[0],
                         height=mur_v_dimensions[1],
+                        borderwidth=1,
+                        relief=tk.FLAT,
                         background='grey',
                         text='').grid(row=(game_pos_y[self.murv[-1][1]] - (2 * i)),
                                       column=(game_pos_x[self.murv[-1][0]] - 1))
             # Remplissage de la case vide
-            case = tk.Frame(self.board,
-                            background='grey',
-                            borderwidth=1,
-                            relief=tk.FLAT)  
-            case.grid(row=(game_pos_y[self.murv[-1][1]] - 1),
-                           column=(game_pos_x[self.murv[-1][0]] - 1))
-            tk.Label(case,
+            tk.Label(self.board,
                      width = 1,
                      height=1,
+                     borderwidth=1,
+                     relief=tk.FLAT,
                      background='grey',
                      text='').grid(row=(game_pos_y[self.murv[-1][1]] - 1),
                                    column=(game_pos_x[self.murv[-1][0]] - 1))
@@ -407,18 +338,12 @@ class QuoridorX(quoridor.Quoridor):
         # Vérifier si un joueur a joué un ou plusieurs de ses murs
         for num, joueur in enumerate(self.joueurs):
             if joueur['murs'] != self.oldjoueurs[num]['murs']:
-                cadre = tk.Frame(self.murholders[num],
-                                 background='grey',
-                                 borderwidth=3,
-                                 padx=5,
-                                 relief=tk.RIDGE)
-                cadre.grid(column=(joueur['murs'] + 1), row=1)
-                tk.Label(cadre,
+                tk.Label(self.murholders[num],
                          width=mur_v_dimensions[0],
                          height=mur_v_dimensions[1],
                          padx=5,
                          background='white',
-                         text='').grid(column=(joueur['murs'] + 1), row=1)
+                         text='').grid(column=(joueur['murs'] + 2), row=1)
                 
                 self.oldjoueurs[num]['murs'] = joueur['murs']
 
