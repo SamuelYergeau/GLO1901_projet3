@@ -320,13 +320,11 @@ def loop(joueurs, jeu):
 
 def loop_graphique_neuve():
     window = tk.Tk()
-    joueur1 = str(sd.askstring("Playername",
-                               "player 1 name? ",
-                               parent=window,))
-    joueur2 = str(sd.askstring("Playername",
-                               "player 2 name? ",
-                               joueur1parent=window,))
-    #window.destroy()
+    joueur1 = sd.askstring("Playername",
+                           "player 1 name? ")
+    joueur2 = sd.askstring("Playername",
+                           "player 2 name? ")
+    window.destroy()
     quoridorx.QuoridorX([joueur1, joueur2])
     tk.mainloop()
 
