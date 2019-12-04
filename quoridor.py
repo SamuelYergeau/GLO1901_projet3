@@ -412,16 +412,22 @@ class Quoridor:
         # 1) Utililiser le hasard pour décider qu'elle mouvement faire
         # Obtenir un élément au hasard 
         listedescoup = [] 
-        ma_liste = ["D", "MH", "MV"]   
-        i = random.randint(0, len(ma_liste) - 1)  
-        elem = ma_liste[i]
-        listedescoup.append(elem)
+        if len(listedescoup) <= 0 : 
+            poids = [10, 10, 10]
+            ma_liste = ["D", "MH", "MV"]
+            elem = random.choices(ma_liste,weights=poids)
+            listedescoup.append(elem)
 
         #2) Variez la probabilité de choisir le placement d'un mur en fonction du nombre de murs qui restent à placer.
         murplacer = 0
         for frequence in listedescoup:
             if frequence == "MH" or "MV":
                 murplacer += 1
+        else:
+            poids = [10, 10-murplacer, 10-murplacer]
+            ma_liste = ["D", "MH", "MV"]
+            elem = random.choices(ma_liste,weights=poids)
+            listedescoup.append(elem)
 
 
 
