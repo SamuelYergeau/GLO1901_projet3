@@ -429,6 +429,14 @@ class Quoridor:
             elem = random.choices(ma_liste,weights=poids)
             listedescoup.append(elem)
 
+        #3)Pour déplacer votre jeton, utilisez le plus court chemin dans le graphe du jeu.
+        if elem == "D":
+            self.déplacer_jeton(joueur, coup_a_jouer)
+
+        #4)Comparer votre plus court chemin avec celui de l'adversaire. Si ce dernier est plus court, placez un mur pour lui barrer le chemin sans barrer le vôtre.
+
+
+
 
 
 
