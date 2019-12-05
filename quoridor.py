@@ -435,9 +435,15 @@ class Quoridor:
 
         #4)Comparer votre plus court chemin avec celui de l'adversaire. Si ce dernier est plus court, placez un mur pour lui barrer le chemin sans barrer le vôtre.
 
-
-
-
+        coup_a_jouer = nx.shortest_path(graphe,
+                                        self.joueurs[(joueur - 1)]['pos'],
+                                        objectifs[(joueur - 1)])[1]
+        coup_a_jouer2 = nx.shortest_path(graphe,
+                                        self.joueurs[(joueur - 1)]['pos'],
+                                        [(joueur - 1)])[1]
+                                        
+        if coup_a_jouer < coup_a_jouer2:
+            self.placer_mur(1, (coup_a_jouer2, ))
 
 
     def partie_terminée(self):
