@@ -115,7 +115,7 @@ def prompt_player():
     print("Veuiller indiquer la position en X de votre coup")
     coupposx = input("position X: ")
     print("veuiller indiquer la position en Y de votre coup")
-    coupposy = input("positiony: ")
+    coupposy = input("position Y: ")
     return [couptype, coupposx, coupposy]
 
 
@@ -128,9 +128,11 @@ def jeu_manuel_serveur(idul):
         idul {str} -- L'identifiant du joueur
     """
     # débuter le jeu
-    nouvellepartie = api.débuter_partie(idul)
-    game_id = nouvellepartie['id']
-    jeu = quoridor.Quoridor(nouvellepartie['état']['joueurs'])
+    nouveaujeu = api.débuter_partie(idul)
+    jeu = quoridor.Quoridor(nouveaujeu['état']['joueurs'])
+    gameid = nouveaujeu['id']
+    jeu.set_mode('server')
+    jeu.set_automode('False')
     # afficher le jeu
     print(jeu)
 
@@ -141,7 +143,7 @@ def jeu_manuel_serveur(idul):
 
         # jouer le coup
         try:
-            nouveaujeu = api.jouer_coup(game_id, coup[0], (coup[1], coup[2]))['état']
+            nouveaujeu = api.jouer_coup(gameid, coup[0], (coup[1], coup[2]))['état']
             jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
             print(jeu)
         except quoridor.QuoridorError:
@@ -168,8 +170,10 @@ def jeu_auto_serveur(idul):
         idul {str} -- L'identifiant du joueur
     """
     nouveaujeu = api.débuter_partie(idul)
-    game_id = nouveaujeu['id']
     jeu = quoridor.Quoridor(nouveaujeu['état']['joueurs'])
+    jeu.set_id(nouveaujeu['id'])
+    jeu.set_mode('server')
+    jeu.set_automode('True')
     # afficher le jeu
     print(jeu)
 
@@ -177,11 +181,13 @@ def jeu_auto_serveur(idul):
     while True:
         # obtenir le prochain coup
         try:
-            nouveaujeu = jeu.jouer_coup_serveur(1, game_id)['état']
-            jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
+            nouveaujeu = jeu.jouer_coup(1)['état']
+            jeu.joueurs = nouveaujeu['joueurs']
+            jeu.murh = nouveaujeu['murs']['horizontaux']
+            jeu.murv = nouveaujeu['murs']['verticaux']
             print(jeu)
         except quoridor.QuoridorError:
-            jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
+            jeu.joueurs = nouveaujeu['joueurs']
             print(jeu)
         except StopIteration as si:
             print('gagnant: ', si)

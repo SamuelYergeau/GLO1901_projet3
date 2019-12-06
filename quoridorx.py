@@ -26,10 +26,6 @@ class QuoridorX(quoridor.Quoridor):
 
         self.root = tk.Tk()
 
-        self.mode = "local"
-        self.gameid = ''
-        self.automode = False
-
         self.root.lift()
         #self.posjoueurs = [self.joueurs[0]['pos'], self.joueurs[1]['pos']]
         self.oldjoueurs = copy.deepcopy(self.joueurs)
@@ -279,36 +275,19 @@ class QuoridorX(quoridor.Quoridor):
                         l.bind("<Button-1>", self.placer_murv)
 
 
-
-    def set_mode(self, mode):
-        self.mode = mode
-
-    
-    def set_id(self, gameid):
-        self.gameid = gameid
-
-    
     def set_automode(self, automode):
         self.automode = automode
-        self.root.after(500, self.auto_play)
+        self.root.after(75, self.auto_play)
 
 
     def auto_play(self):
         try:
-            print('joueurs:', self.joueurs)
-            print('murh:',self.murh)
-            print('murv:',self.murv)
-            nouveaujeu = self.jouer_coup_serveur(1, self.gameid)['état']
-            #nouveaujeu = jeu.jouer_coup_serveur(1, game_id)['état']
-            #jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
-            #print(nouveaujeu)
+            nouveaujeu = self.jouer_coup(1)['état']
             self.joueurs = nouveaujeu['joueurs']
-            #print('joueurs:', self.joueurs)
             self.murh = nouveaujeu['murs']['horizontaux']
             self.murv = nouveaujeu['murs']['verticaux']
             self.afficher()
         except quoridor.QuoridorError:
-            #jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
             self.afficher()
         except StopIteration as si:
             print('gagnant: ', si)
@@ -318,7 +297,7 @@ class QuoridorX(quoridor.Quoridor):
             self.afficher()
             self.verification_victoire()
         if self.set_automode:
-            self.root.after(500, self.auto_play)
+            self.root.after(75, self.auto_play)
 
 
 

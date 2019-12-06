@@ -193,6 +193,10 @@ class Quoridor:
                         {'nom':'', 'murs': 0, 'pos':(0, 0)}]
         self.murh = []
         self.murv = []
+        self.mode = "local"
+        self.gameid = ''
+        self.automode = False
+
         starting_position = [(5, 1), (5, 9)]
         #faire un copie profonde de ce qui a besoin d'être copié
         cjoueurs = copy.deepcopy(joueurs)
@@ -324,6 +328,21 @@ class Quoridor:
         return ''.join(board)
 
 
+    def set_mode(self, mode):
+        self.mode = mode
+
+    
+    def set_id(self, gameid):
+        self.gameid = gameid
+
+    def get_id(self):
+        return self.gameid
+
+    
+    def set_automode(self, automode):
+        self.automode = automode
+
+
     def déplacer_jeton(self, joueur, position):
         """
         déplacer_jeton
@@ -397,16 +416,29 @@ class Quoridor:
             return False
 
         try:
-            # trouver s'il s'agit d'un mouvement horizontal ou vertical
-            if not chemin2[1][0] == chemin2[0][0]:
-                self.placer_mur(joueur, chemin2[1], 'vertical')
+            # selon si on joue en local ou contre le serveur
+            if self.mode == 'local':
+                # trouver s'il s'agit d'un mouvement horizontal ou vertical
+                if not chemin2[1][0] == chemin2[0][0]:
+                    self.placer_mur(joueur, chemin2[1], 'vertical')
+                else:
+                    self.placer_mur(joueur, chemin2[1], 'horizontal')
+                return True
+            elif self.mode == 'server':
+                if not chemin2[1][0] == chemin2[0][0]:
+                    #self.placer_mur(joueur, chemin2[1], 'vertical')
+                    return api.jouer_coup(self.gameid, 'MV', chemin2[1])
+                else:
+                    #self.placer_mur(joueur, chemin2[1], 'horizontal')
+                    return api.jouer_coup(self.gameid, 'MH', chemin2[1])
             else:
-                self.placer_mur(joueur, chemin2[1], 'horizontal')
-            return True
+                raise QuoridorError("not playing in any known mode!")
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except QuoridorError:
             return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
         except nx.exception.NetworkXError:
+            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+        except RuntimeError:
             return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
         except Exception:
             print("exception inatendue")
@@ -442,11 +474,11 @@ class Quoridor:
         )
         # Dresser le tableau du shortest_path pour chaque joueur
         chemin1 = nx.shortest_path(graphe,
-                                   self.joueurs[(joueur - 1)]['pos'],
+                                   tuple(self.joueurs[(joueur - 1)]['pos']),
                                    objectifs[(joueur - 1)])
 
         chemin2 = nx.shortest_path(graphe,
-                                   self.joueurs[(adversaire - 1)]['pos'],
+                                   tuple(self.joueurs[(adversaire - 1)]['pos']),
                                    objectifs[(adversaire - 1)])
         
         # utiliser le hasard pour déterminer si on deplace le jeton ou place un mur
@@ -456,13 +488,18 @@ class Quoridor:
         if (dice >= (self.joueurs[(joueur - 1)]['murs'] // 2)) or (len(chemin2) < len(chemin1)):
             result = self.auto_placer_mur(joueur, chemin1, chemin2, 1)
             if result:
-                return
+                return result
         
         # Sinon, bouger le joueur selon le plus court chemin
-        self.déplacer_jeton(joueur, chemin1[1])
+        if self.mode == 'local':
+            self.déplacer_jeton(joueur, chemin1[1])
+        elif self.mode == 'server':
+            return api.jouer_coup(self.gameid, 'D', chemin1[1])
+        else:
+            raise QuoridorError("wrong mode!")
 
     
-    def auto_placer_mur_serveur(self, joueur, chemin1, chemin2, attempts, gameid):
+    #def auto_placer_mur_serveur(self, joueur, chemin1, chemin2, attempts, gameid):
         """fonction pour assister jouer_coup_serveur
         Place un mur automatiquement dans le chemin du joueur adverse
         en fonction de son shortest_path        
@@ -478,7 +515,7 @@ class Quoridor:
             TODO: ajouter un truc pour placer des murs horizontaux à x=9 (genre un décallage)
             TODO: vérifier que les murs ne sont pas placés dans notre propre chemin
         """
-        # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
+        """# comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
         # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
         if attempts >= 3:
             return False
@@ -500,11 +537,11 @@ class Quoridor:
             return self.auto_placer_mur_serveur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1), gameid)
         except Exception:
             print("exception inatendue")
-            return False
+            return False"""
 
 
 
-    def jouer_coup_serveur(self, joueur, gameid):
+    #def jouer_coup_serveur(self, joueur, gameid):
         """
         jouer_coup, mais avec le serveur
         Pour le joueur spécifié, jouer automatiquement son meilleur
@@ -514,7 +551,7 @@ class Quoridor:
             joueur {int} -- un entier spécifiant le numéro du joueur (1 ou 2)
         Return: None
         """
-        # objectifs
+        """# objectifs
         objectifs = ['B1', 'B2']
         # identifiant de l'adversaire
         adversaire = 1
@@ -533,7 +570,6 @@ class Quoridor:
             self.murv
         )
         # Dresser le tableau du shortest_path pour chaque joueur
-        print(joueur)
         chemin1 = nx.shortest_path(graphe,
                                    tuple(self.joueurs[(joueur - 1)]['pos']),
                                    objectifs[(joueur - 1)])
@@ -553,7 +589,7 @@ class Quoridor:
         
         # Sinon, bouger le joueur selon le plus court chemin
         return api.jouer_coup(gameid, 'D', chemin1[1])
-        #self.déplacer_jeton(joueur, chemin1[1])
+        #self.déplacer_jeton(joueur, chemin1[1])"""
 
 
 
