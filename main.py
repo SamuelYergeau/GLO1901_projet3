@@ -28,14 +28,12 @@ Contient les fonctions:
 '''
 import argparse
 import api
-import quoridorx
 import quoridor
+import quoridorx
 import tkinter as tk
 from tkinter import simpledialog as sd
 
 
-# Storer le id
-GAME_ID = ''
 def afficher_damier_ascii(etat):
     '''def afficher_damier_ascii(etat)
 
@@ -152,13 +150,28 @@ def analyser_commande():
         description="Jeu Quoridor - phase 1"
     )
     # indiquer au joueur d'entrer son nom
-    parser.add_argument('idul',
-                        default='nom_du_joueur',
-                        help="IDUL du joueur.")
+    
     parser.add_argument('-l', '--lister',
                         dest='lister',
                         action='store_true',
                         help="Lister les identifiants de vos 20 dernières parties.")
+    parser.add_argument('-a',
+                        dest='auto',
+                        action='store_true',
+                        help="Jouer en mode automatique contre le serveur avec le nom idul")
+    parser.add_argument('-x',
+                        dest='graphique',
+                        action='store_true',
+                        help="Jouer en mode manuel contre le serveur avec le nom idul, " +
+                              "mais avec un affichage dans une fenêtre graphique")
+    parser.add_argument('-ax',
+                        dest='autographique',
+                        action='store_true',
+                        help="Jouer en mode automatique contre le serveur avec le nom idul, " +
+                              "mais avec un affichage dans une fenêtre graphique")
+    parser.add_argument('idul',
+                        default='nom_du_joueur',
+                        help="IDUL du joueur.")
     return parser.parse_args()
 
 
@@ -228,37 +241,7 @@ def prompt_player():
     return [couptype, coupposx, coupposy]
 
 
-def boucler():
-    '''def boucler()
-    Description:
-        une fonction qui fait boucler la logique de la partie
-    Input:
-        None
-    Return:
-        None
-    '''
-    while True:
-        # demander au joueur de jouer son prochain coup
-        nouveaucoup = prompt_player()
-        # jouer le coup
-        try:
-            newboard = api.jouer_coup(GAME_ID, nouveaucoup[0],
-                                      (nouveaucoup[1], nouveaucoup[2]))
-        except RuntimeError as r:
-            print("\nERREUR!: ", r, '\n')
-            continue
-        except StopIteration as s:
-            # prévenir le joueur que la partie est terminée
-            print('\n' + '~' * 39)
-            print("LA PARTIE EST TERMINÉE!")
-            print("LE JOUEUR {} À GAGNÉ!".format(s))
-            print('~' * 39 + '\n')
-            # afficher l'état final du jeu
-            #afficher_damier_ascii(rep['état'])
-            return
-        # Afficher une nouvelle partie
-        print("\nVotre coup à été joué avec succès\n")
-        afficher_damier_ascii(newboard['état'])
+
 
 
 def loop(joueurs, jeu):
@@ -329,54 +312,141 @@ def loop_graphique_neuve():
     tk.mainloop()
 
 
+def jeu_manuel_serveur(idul):
+    """mode de jeu permettant de jouer en mode manuel contre le serveur
+    - Les commandes sont entrées via le terminal
+    - L'affichage s'effectue via le terminal en art ascii    
+    Arguments:
+        idul {str} -- L'identifiant du joueur
+    """
+    # débuter le jeu
+    nouvellepartie = api.débuter_partie(idul)
+    game_id = nouvellepartie['id']
+    jeu = quoridor.Quoridor(nouvellepartie['état']['joueurs'])
+    # afficher le jeu
+    print(jeu)
+
+    # boucler
+    while True:
+        # demander au joueur son prochain coup
+        coup = prompt_player()
+
+        # jouer le coup
+        try:
+            nouveaujeu = api.jouer_coup(game_id, coup[0], (coup[1], coup[2]))['état']
+            jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
+            print(jeu)
+        except quoridor.QuoridorError:
+            jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
+            print(jeu)
+        except RuntimeError as r:
+            print("\nERREUR!: ", r, '\n')
+            continue
+        except StopIteration as s:
+            # prévenir le joueur que la partie est terminée
+            print('\n' + '~' * 39)
+            print("LA PARTIE EST TERMINÉE!")
+            print("LE JOUEUR {} À GAGNÉ!".format(s))
+            print('~' * 39 + '\n')
+            return
+
+
+
+def jeu_auto_serveur(idul):
+    """jouer contre le serveur en mode automatique
+    - le jeu est géré par le AI
+    - l'affichage se fait dans le terminal    
+    Arguments:
+        idul {str} -- L'identifiant du joueur
+    """
+    nouveaujeu = api.débuter_partie(idul)
+    game_id = nouveaujeu['id']
+    jeu = quoridor.Quoridor(nouveaujeu['état']['joueurs'])
+    # afficher le jeu
+    print(jeu)
+
+    # boucler
+    while True:
+        # obtenir le prochain coup
+        try:
+            nouveaujeu = jeu.jouer_coup_serveur(1, game_id)['état']
+            jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
+            print(jeu)
+        except quoridor.QuoridorError:
+            jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
+            print(jeu)
+        except StopIteration as si:
+            print('gagnant: ', si)
+            return
+
+
+
+def jeu_manuel_graphique_serveur(idul):
+    """jeu manuel affiché dans un interface graphique
+    - Les coups sont entrés dans l'interface graphique
+    - L'affichage se fait dans l'interface graphique    
+    Arguments:
+        idul {str} -- L'identifiant du joueur
+    """
+    nouvellepartie = api.débuter_partie(idul)
+    game_id = nouvellepartie['id']
+    jeu = quoridorx.QuoridorX(nouvellepartie['état']['joueurs'])
+
+    # set le jeu pour jouer avec le serveur
+    jeu.set_mode('server')
+    jeu.set_id(game_id)
+    tk.mainloop()
+
+
+def jeu_auto_graphique_serveur(idul):
+    """jeu automatique affiché dans un interface graphique
+    - Les coup sont gérés par l'AI
+    - L'affichage se fait dans l'interface graphique    
+    Arguments:
+        idul {str} -- L'identifiant du joueur
+    """
+    nouvellepartie = api.débuter_partie(idul)
+    game_id = nouvellepartie['id']
+    jeu = quoridorx.QuoridorX(nouvellepartie['état']['joueurs'])
+
+    # set le jeu pour jouer avec le serveur
+    jeu.set_mode('server')
+    jeu.set_id(game_id)
+    jeu.set_automode(True)
+    tk.mainloop()    
+
+
+def jeu_manuel():
+    pass
+
+
+def repartition_options(options):
+    """Fonction qui reçois des options de analyser_commande
+    et enclanche les mécanismes de jeu en fonction de ces derniers    
+    Arguments:
+        options {nameplace} -- liste des options dans lesquelles le jeu se déroulera
+    """
+    # check if more than one option is true
+    if sum([options.auto, options.graphique, options.autographique, options.lister]) > 1:
+        raise ValueError("too many options chosen!")
+
+    # sent every option to their respective function
+    if options.lister:
+        pass
+    elif options.auto:
+        jeu_auto_serveur(options.idul)
+    elif options.graphique:
+        jeu_manuel_graphique_serveur(options.idul)
+    elif options.autographique:
+        jeu_auto_graphique_serveur(options.idul)
+    else:
+        jeu_manuel_serveur(options.idul)
+
+    
+
 
 if __name__ == "__main__":
-    #loop_graphique_neuve()
-    """#  écouter si le joueur veut commencer une partie
-    COM = analyser_commande()
-    # vérifier si l'argument lister a été appelé
-    if 'lister' in COM and COM.lister:
-        # appeler la fonction lister
-        listing(COM.idul)
-    else:
-        # débuter la partie et storer le id de la partie
-        GAME_ID += debuter(COM)
-        # boucler sur la logique de la partie
-        boucler()"""
-    ETAT_JEU = {
-        "joueurs": [
-            {"nom": "idul", "murs": 7, "pos": [5, 6]},
-            {"nom": "automate", "murs": 3, "pos": [5, 7]}
-        ],
-        "murs": {
-            "horizontaux": [[4, 4], [2, 6], [3, 8], [5, 8], [7, 8]],
-            "verticaux": [[6, 2], [4, 4], [2, 5], [7, 5], [7, 7]]
-        }
-    }
-    #swag lines
-    print('\n' + '~' * 39)
-    print("BIENVENU DANS QUORIDOR!")
-    print('~' * 39 + '\n')
-    # offrir de jouer une nouvelle partie ou reprendre une partie existante
-    print("souhaitez vous commencer une nouvelle partie ou continuer une partie existante?")
-    print("1 = nouvelle partie | 2 = partie existante")
-    CHOIX = int(input("choix: "))
-    if CHOIX == 1:
-        # obtenir le nom des deux joueurs
-        print("veuillez entrer le nom des joueurs:")
-        JOUEUR1 = input("nom du joueur1: ")
-        JOUEUR2 = input("nom du joueur2: ")
-        # demarrer une nouvelle partie
-        JEU = quoridorx.QuoridorX([JOUEUR1, JOUEUR2])
-        loop([JOUEUR1, JOUEUR2], JEU)
-    elif CHOIX == 2:
-        JEU = quoridorx.QuoridorX(ETAT_JEU['joueurs'], ETAT_JEU['murs'])
-        loop(["joueur1", "joueur2"], JEU)
-    elif CHOIX == 3:
-        JEU = quoridorx.QuoridorX(['robot', 'robot'])
-        loop(['robot', 'robot'], JEU)
-    else:
-        print("choix invalide!")
+    repartition_options(analyser_commande())
     
     
 

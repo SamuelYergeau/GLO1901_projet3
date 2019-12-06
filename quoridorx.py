@@ -4,6 +4,7 @@ Module pour contenir la classe QuoridorX
 import quoridor
 import tkinter as tk
 import copy
+import api
 from tkinter import messagebox as mb
 
 
@@ -24,6 +25,10 @@ class QuoridorX(quoridor.Quoridor):
         super().__init__(joueurs, murs)
 
         self.root = tk.Tk()
+
+        self.mode = "local"
+        self.gameid = ''
+        self.automode = False
 
         self.root.lift()
         #self.posjoueurs = [self.joueurs[0]['pos'], self.joueurs[1]['pos']]
@@ -273,6 +278,50 @@ class QuoridorX(quoridor.Quoridor):
                                    game_pos_y.index(j))
                         l.bind("<Button-1>", self.placer_murv)
 
+
+
+    def set_mode(self, mode):
+        self.mode = mode
+
+    
+    def set_id(self, gameid):
+        self.gameid = gameid
+
+    
+    def set_automode(self, automode):
+        self.automode = automode
+        self.root.after(500, self.auto_play)
+
+
+    def auto_play(self):
+        try:
+            print('joueurs:', self.joueurs)
+            print('murh:',self.murh)
+            print('murv:',self.murv)
+            nouveaujeu = self.jouer_coup_serveur(1, self.gameid)['état']
+            #nouveaujeu = jeu.jouer_coup_serveur(1, game_id)['état']
+            #jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
+            #print(nouveaujeu)
+            self.joueurs = nouveaujeu['joueurs']
+            #print('joueurs:', self.joueurs)
+            self.murh = nouveaujeu['murs']['horizontaux']
+            self.murv = nouveaujeu['murs']['verticaux']
+            self.afficher()
+        except quoridor.QuoridorError:
+            #jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
+            self.afficher()
+        except StopIteration as si:
+            print('gagnant: ', si)
+            self.joueurs = nouveaujeu['joueurs']
+            self.murh = nouveaujeu['murs']['horizontaux']
+            self.murv = nouveaujeu['murs']['verticaux']
+            self.afficher()
+            self.verification_victoire()
+        if self.set_automode:
+            self.root.after(500, self.auto_play)
+
+
+
     
     def afficher(self):
         """met à jours l'affichage
@@ -409,20 +458,77 @@ class QuoridorX(quoridor.Quoridor):
 
 
     def bouger_joueur(self,event):
-        self.déplacer_jeton(self.playerturn, event.widget.extra)
+        if self.mode == 'local':
+            self.déplacer_jeton(self.playerturn, event.widget.extra)
+        else:
+            try:
+                nouveaujeu = api.jouer_coup(self.gameid,
+                                            'D',
+                                            event.widget.extra)['état']
+                self.joueurs = nouveaujeu['joueurs']
+                self.murh = nouveaujeu['murs']['horizontaux']
+                self.murv = nouveaujeu['murs']['verticaux']
+            except RuntimeError as r:
+                #TODO: faire une fenetre popup a la place
+                print("\nERREUR!: ", r, '\n')
+            except StopIteration as s:
+                # prévenir le joueur que la partie est terminée
+                print('\n' + '~' * 39)
+                print("LA PARTIE EST TERMINÉE!")
+                print("LE JOUEUR {} À GAGNÉ!".format(s))
+                print('~' * 39 + '\n')
+                return
         self.afficher()
 
     def placer_murh(self, event):
-        self.placer_mur(self.playerturn,
-                        event.widget.extra,
-                        'horizontal')
+        if self.mode == 'local':
+            self.placer_mur(self.playerturn,
+                            event.widget.extra,
+                            'horizontal')
+        else:
+            try:
+                nouveaujeu = api.jouer_coup(self.gameid,
+                                            'MH',
+                                            event.widget.extra)['état']
+                self.joueurs = nouveaujeu['joueurs']
+                self.murh = nouveaujeu['murs']['horizontaux']
+                self.murv = nouveaujeu['murs']['verticaux']
+            except RuntimeError as r:
+                # TODO: faire une fenetre popup a la place
+                print("\nERREUR!: ", r, '\n')
+            except StopIteration as s:
+                # prévenir le joueur que la partie est terminée
+                print('\n' + '~' * 39)
+                print("LA PARTIE EST TERMINÉE!")
+                print("LE JOUEUR {} À GAGNÉ!".format(s))
+                print('~' * 39 + '\n')
+                return
         self.afficher()
 
     def placer_murv(self, event):
-        self.placer_mur(self.playerturn,
-                        event.widget.extra,
-                        'vertical')
+        if self.mode == 'local':
+            self.placer_mur(self.playerturn,
+                            event.widget.extra,
+                            'vertical')
+        else:
+            try:
+                nouveaujeu = api.jouer_coup(self.gameid,
+                                            'MV',
+                                            event.widget.extra)['état']
+                self.joueurs = nouveaujeu['joueurs']
+                self.murh = nouveaujeu['murs']['horizontaux']
+                self.murv = nouveaujeu['murs']['verticaux']
+            except RuntimeError as r:
+                print("\nERREUR!: ", r, '\n')
+            except StopIteration as s:
+                # prévenir le joueur que la partie est terminée
+                print('\n' + '~' * 39)
+                print("LA PARTIE EST TERMINÉE!")
+                print("LE JOUEUR {} À GAGNÉ!".format(s))
+                print('~' * 39 + '\n')
+                return
         self.afficher()
+
 
 
 
