@@ -378,6 +378,18 @@ class Quoridor:
 
 
     def auto_placer_mur(self, joueur, chemin1, chemin2, attempts):
+        """fonction pour assister jouer_coup
+        Place un mur automatiquement dans le chemin du joueur adverse
+        en fonction de son shortest_path        
+        Arguments:
+            joueur {int} -- int (1 ou 2) du joueur pour lequel on joue le coup
+            chemin1 {list} -- shortest_path du joueur qui place un mur
+            chemin2 {list} -- shortest_path du joueur adverse
+            attempts {int} -- nombre d'essai ayant été effectuées
+        
+        Returns:
+            bool -- True si on a bien reussi a placer un mur. False sinon
+        """
         # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
         # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
         if attempts >= 3:
@@ -412,6 +424,7 @@ class Quoridor:
         """
         # objectifs
         objectifs = ['B1', 'B2']
+        # identifiant de l'adversaire
         adversaire = 1
         if adversaire == joueur:
             adversaire = 2
@@ -427,6 +440,7 @@ class Quoridor:
             self.murh,
             self.murv
         )
+        # Dresser le tableau du shortest_path pour chaque joueur
         chemin1 = nx.shortest_path(graphe,
                                    self.joueurs[(joueur - 1)]['pos'],
                                    objectifs[(joueur - 1)])
