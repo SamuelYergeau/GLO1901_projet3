@@ -377,6 +377,25 @@ class Quoridor:
                     }}
 
 
+    def auto_placer_mur(self, joueur, chemin1, chemin2, attempts):
+        # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
+        # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
+        if attempts >= 3:
+            return False
+
+        try:
+            # trouver s'il s'agit d'un mouvement horizontal ou vertical
+            if chemin2[1][0] != chemin2[0][0]:
+                self.placer_mur(joueur, chemin2[1], 'horizontal')
+            else:
+                self.placer_mur(joueur, chemin2[1], 'vertical')
+            return True
+        # Si le mur ne peut pas être placé, essayer avec la prochaine position
+        except QuoridorError:
+            self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+        except nx.exception.NetworkXError:
+            self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+    
     def jouer_coup(self, joueur):
         """
         jouer_coup
@@ -385,11 +404,13 @@ class Quoridor:
         soit le placement d'un mur horizontal ou vertical.
         Arguments:
             joueur {int} -- un entier spécifiant le numéro du joueur (1 ou 2)
-        NOTE: version temporaire et stupide! à optimiser!
         Return: None
         """
         # objectifs
         objectifs = ['B1', 'B2']
+        adversaire = 1
+        if adversaire == joueur:
+            adversaire = 2
         # Vérifier que le joueur est valide
         if joueur not in (1, 2):
             raise QuoridorError("joueur invalide!")
@@ -402,17 +423,34 @@ class Quoridor:
             self.murh,
             self.murv
         )
-        coup_a_jouer = nx.shortest_path(graphe,
-                                        self.joueurs[(joueur - 1)]['pos'],
-                                        objectifs[(joueur - 1)])[1]
-        # jouer le coup
-        self.déplacer_jeton(joueur, coup_a_jouer)
+        chemin1 = nx.shortest_path(graphe,
+                                   self.joueurs[(joueur - 1)]['pos'],
+                                   objectifs[(joueur - 1)])[1]
 
-        """SECTION STRATÉGIE DE JEU"""
-        # 1) Utililiser le hasard pour décider qu'elle mouvement faire
-        # Obtenir un élément au hasard 
+        chemin2 = nx.shortest_path(graphe,
+                                   self.joueurs[(adversaire - 1)]['pos'],
+                                   objectifs[(adversaire - 1)])[1]
+        
+        # utiliser le hasard pour déterminer si on deplace le jeton ou place un mur
+        dice = random.randint(1, 10)
+        # varier le choix en fonction du nombre de murs qu'il reste à placer
+        # compager si le chemin le plus rapide de l'adversaire est plus cours que celui du joueur
+        if (dice >= (self.joueurs[(joueur - 1)]['murs'] // 2)) or (len(chemin2) < len(chemin1)):
+            if self.auto_placer_mur(joueur, chemin1, chemin2, 1):
+                return
+        
+        # Sinon, bouger le joueur selon le plus court chemin
+        self.déplacer_jeton(joueur, chemin1[1])
+
+        
+
+
+        """# jouer le coup
+        self.déplacer_jeton(joueur, coup_a_jouer)
+        # 1) Utililiser le hasard pour décider quel mouvement faire
+        # Obtenir un élément au hasard
         listedescoup = [] 
-        if len(listedescoup) <= 0 : 
+        if len(listedescoup) <= 0 :
             poids = [10, 10, 10]
             ma_liste = ["D", "MH", "MV"]
             elem = random.choices(ma_liste,weights=poids)
@@ -443,7 +481,11 @@ class Quoridor:
                                         [(joueur - 1)])[1]
                                         
         if coup_a_jouer < coup_a_jouer2:
-            self.placer_mur(1, (coup_a_jouer2, ))
+            self.placer_mur(1, (coup_a_jouer2, ))"""
+        
+        # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
+        # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
+
 
 
     def partie_terminée(self):
