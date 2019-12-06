@@ -276,21 +276,21 @@ def loop(joueurs, jeu):
                 # débuter la partie et storer le id de la partie
                 GAME_ID += debuter(COM)
                 # boucler sur la logique de la partie
-                boucler()
+                boucler()1
+                robot
     """
     while True:
         # Itérer sur les deux joueurs
         for n in range(1, 3):
             try:
                 # afficher le jeu
-                print("afficher")
                 print(jeu)
                 jeu.afficher()
                 # jouer le coup du joueur 1
                 if joueurs[(n - 1)] == "robot":
                     jeu.jouer_coup(n)
                 else:
-                    print("tout à {}".format(joueurs[(n-1)]))
+                    print("tour au joueur: {}".format(joueurs[(n-1)]))
                     print("indiquer le type de coup à jouer")
                     tcoup = input("[D, MH ou MH]: ").upper()
                     posx = int(input("position en x du coup: "))
@@ -331,7 +331,7 @@ def loop_graphique_neuve():
 
 
 if __name__ == "__main__":
-    loop_graphique_neuve()
+    #loop_graphique_neuve()
     """#  écouter si le joueur veut commencer une partie
     COM = analyser_commande()
     # vérifier si l'argument lister a été appelé
@@ -343,7 +343,7 @@ if __name__ == "__main__":
         GAME_ID += debuter(COM)
         # boucler sur la logique de la partie
         boucler()"""
-    """ETAT_JEU = {
+    ETAT_JEU = {
         "joueurs": [
             {"nom": "idul", "murs": 7, "pos": [5, 6]},
             {"nom": "automate", "murs": 3, "pos": [5, 7]}
@@ -372,8 +372,11 @@ if __name__ == "__main__":
     elif CHOIX == 2:
         JEU = quoridorx.QuoridorX(ETAT_JEU['joueurs'], ETAT_JEU['murs'])
         loop(["joueur1", "joueur2"], JEU)
+    elif CHOIX == 3:
+        JEU = quoridorx.QuoridorX(['robot', 'robot'])
+        loop(['robot', 'robot'], JEU)
     else:
-        print("choix invalide!")"""
+        print("choix invalide!")
     
     
 

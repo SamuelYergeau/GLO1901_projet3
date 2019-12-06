@@ -381,20 +381,24 @@ class Quoridor:
         # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
         # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
         if attempts >= 3:
+            print("failed with 3 attempts. aborting wall placement")
             return False
 
         try:
             # trouver s'il s'agit d'un mouvement horizontal ou vertical
-            if chemin2[1][0] != chemin2[0][0]:
-                self.placer_mur(joueur, chemin2[1], 'horizontal')
-            else:
+            if not chemin2[1][0] == chemin2[0][0]:
                 self.placer_mur(joueur, chemin2[1], 'vertical')
+            else:
+                self.placer_mur(joueur, chemin2[1], 'horizontal')
             return True
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except QuoridorError:
-            self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
         except nx.exception.NetworkXError:
-            self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+        except Exception:
+            print("exception inatendue")
+            return False
     
     def jouer_coup(self, joueur):
         """
@@ -425,66 +429,24 @@ class Quoridor:
         )
         chemin1 = nx.shortest_path(graphe,
                                    self.joueurs[(joueur - 1)]['pos'],
-                                   objectifs[(joueur - 1)])[1]
+                                   objectifs[(joueur - 1)])
 
         chemin2 = nx.shortest_path(graphe,
                                    self.joueurs[(adversaire - 1)]['pos'],
-                                   objectifs[(adversaire - 1)])[1]
+                                   objectifs[(adversaire - 1)])
         
         # utiliser le hasard pour déterminer si on deplace le jeton ou place un mur
         dice = random.randint(1, 10)
         # varier le choix en fonction du nombre de murs qu'il reste à placer
         # compager si le chemin le plus rapide de l'adversaire est plus cours que celui du joueur
         if (dice >= (self.joueurs[(joueur - 1)]['murs'] // 2)) or (len(chemin2) < len(chemin1)):
-            if self.auto_placer_mur(joueur, chemin1, chemin2, 1):
+            result = self.auto_placer_mur(joueur, chemin1, chemin2, 1)
+            if result:
                 return
         
         # Sinon, bouger le joueur selon le plus court chemin
         self.déplacer_jeton(joueur, chemin1[1])
 
-        
-
-
-        """# jouer le coup
-        self.déplacer_jeton(joueur, coup_a_jouer)
-        # 1) Utililiser le hasard pour décider quel mouvement faire
-        # Obtenir un élément au hasard
-        listedescoup = [] 
-        if len(listedescoup) <= 0 :
-            poids = [10, 10, 10]
-            ma_liste = ["D", "MH", "MV"]
-            elem = random.choices(ma_liste,weights=poids)
-            listedescoup.append(elem)
-
-        #2) Variez la probabilité de choisir le placement d'un mur en fonction du nombre de murs qui restent à placer.
-        murplacer = 0
-        for frequence in listedescoup:
-            if frequence == "MH" or "MV":
-                murplacer += 1
-        else:
-            poids = [10, 10-murplacer, 10-murplacer]
-            ma_liste = ["D", "MH", "MV"]
-            elem = random.choices(ma_liste,weights=poids)
-            listedescoup.append(elem)
-
-        #3)Pour déplacer votre jeton, utilisez le plus court chemin dans le graphe du jeu.
-        if elem == "D":
-            self.déplacer_jeton(joueur, coup_a_jouer)
-
-        #4)Comparer votre plus court chemin avec celui de l'adversaire. Si ce dernier est plus court, placez un mur pour lui barrer le chemin sans barrer le vôtre.
-
-        coup_a_jouer = nx.shortest_path(graphe,
-                                        self.joueurs[(joueur - 1)]['pos'],
-                                        objectifs[(joueur - 1)])[1]
-        coup_a_jouer2 = nx.shortest_path(graphe,
-                                        self.joueurs[(joueur - 1)]['pos'],
-                                        [(joueur - 1)])[1]
-                                        
-        if coup_a_jouer < coup_a_jouer2:
-            self.placer_mur(1, (coup_a_jouer2, ))"""
-        
-        # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
-        # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
 
 
 
@@ -539,6 +501,9 @@ class Quoridor:
         # Vérifier si le joueur ne peut plus placer de murs
         if self.joueurs[(joueur - 1)]['murs'] <= 0:
             raise QuoridorError("le joueur ne peut plus placer de murs!")
+        # Si la position est invalide (B1 ou B2)
+        if not isinstance(position[0], int) or not isinstance(position[1], int):
+            raise QuoridorError("position invalide!")
         # Si le mur est horizontal
         if orientation == 'horizontal':
             self.check_position(position)
@@ -548,6 +513,7 @@ class Quoridor:
                 (self.murh + [position]),
                 self.murv
             )
+            
             # vérifier si placer ce mur enfermerais un joueur
             for i in range(2):
                 if not nx.has_path(graphe, (self.joueurs[i]['pos']), objectif[i]):
