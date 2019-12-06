@@ -33,6 +33,7 @@ class QuoridorX(quoridor.Quoridor):
         self.nombremurv = len(self.murv)
         self.murholders = [0, 0]
         self.playerturn = 1
+        self.highlightthickness = 5
         
         # lists of equivalent positions
         game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
@@ -105,13 +106,17 @@ class QuoridorX(quoridor.Quoridor):
                                  relief=tk.FLAT,
                                  borderwidth=1,
                                  takefocus=True,
-                                 highlightcolor='blue',
-                                 highlightthickness=5,
+                                 highlightcolor='red',
+                                 activeforeground='blue',
+                                 activebackground='#ffcc99',
+                                 highlightthickness=self.highlightthickness,
                                  background='#ffcc99',
                                  text=str(numero + 1))
                         l.grid(row=j, column =i)
                         l.extra = joueur['pos']
                         l.bind("<Button-1>", self.bouger_joueur)
+                        l.bind("<Enter>", self.hilight)
+                        l.bind("<Leave>", self.unhilight)
                         break
                     else:
                         if (i in game_pos_x) and (j in game_pos_y):
@@ -122,13 +127,17 @@ class QuoridorX(quoridor.Quoridor):
                                     borderwidth=1,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    highlightthickness=self.highlightthickness,
+                                    activeforeground='blue',
+                                    activebackground='#f9f9eb',
                                     background='#f9f9eb',
                                     text='')
                             l.grid(row=j, column =i)
                             l.extra = (game_pos_x.index(i),
                                        game_pos_y.index(j))
                             l.bind("<Button-1>", self.bouger_joueur)
+                            l.bind("<Enter>", self.hilight)
+                            l.bind("<Leave>", self.unhilight)
                 
                 # Murs horizontaux
                 if len(self.murh) > 0:
@@ -141,7 +150,9 @@ class QuoridorX(quoridor.Quoridor):
                                     relief=tk.FLAT,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    activeforeground='blue',
+                                    activebackground='grey',
+                                    highlightthickness=self.highlightthickness,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             # remplissage de la case vide
@@ -152,7 +163,7 @@ class QuoridorX(quoridor.Quoridor):
                                     relief=tk.FLAT,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    highlightthickness=self.highlightthickness,
                                     background='grey',
                                     text='').grid(row=j, column =(i + 1))
                             break
@@ -165,7 +176,7 @@ class QuoridorX(quoridor.Quoridor):
                                     relief=tk.FLAT,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    highlightthickness=self.highlightthickness,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             break
@@ -179,12 +190,16 @@ class QuoridorX(quoridor.Quoridor):
                                         relief=tk.FLAT,
                                         takefocus=True,
                                         highlightcolor='blue',
-                                        highlightthickness=5,
+                                        activeforeground='blue',
+                                        activebackground='brown',
+                                        highlightthickness=self.highlightthickness,
                                         text='')
                                 l.grid(row=j, column =i)
                                 l.extra = (game_pos_x.index(i),
                                            game_pos_y.index(j - 1))
                                 l.bind("<Button-1>", self.placer_murh)
+                                l.bind("<Enter>", self.hilight)
+                                l.bind("<Leave>", self.unhilight)
                 else:
                     if (i in game_pos_x) and (j in game_pos_mur):
                         l = tk.Label(self.board,
@@ -194,13 +209,17 @@ class QuoridorX(quoridor.Quoridor):
                                  relief=tk.FLAT,
                                  takefocus=True,
                                  highlightcolor='blue',
-                                 highlightthickness=5,
+                                 activeforeground='blue',
+                                 activebackground='brown',
+                                 highlightthickness=self.highlightthickness,
                                  background='brown',
                                  text='')
                         l.grid(row=j, column =i)
                         l.extra = (game_pos_x.index(i),
                                    game_pos_y.index(j - 1))
                         l.bind("<Button-1>", self.placer_murh)
+                        l.bind("<Enter>", self.hilight)
+                        l.bind("<Leave>", self.unhilight)
                 
                 #Murs verticaux
                 if len(self.murv) > 0:
@@ -213,7 +232,7 @@ class QuoridorX(quoridor.Quoridor):
                                     relief=tk.FLAT,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    highlightthickness=self.highlightthickness,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             # remplissage de la case vide
@@ -224,7 +243,7 @@ class QuoridorX(quoridor.Quoridor):
                                     relief=tk.FLAT,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    highlightthickness=self.highlightthickness,
                                     background='grey',
                                     text='').grid(row=(j - 1), column =i)
                             break
@@ -237,7 +256,7 @@ class QuoridorX(quoridor.Quoridor):
                                     relief=tk.FLAT,
                                     takefocus=True,
                                     highlightcolor='blue',
-                                    highlightthickness=5,
+                                    highlightthickness=self.highlightthickness,
                                     background='grey',
                                     text='').grid(row=j, column =i)
                             break
@@ -250,13 +269,17 @@ class QuoridorX(quoridor.Quoridor):
                                         relief=tk.FLAT,
                                         takefocus=True,
                                         highlightcolor='blue',
-                                        highlightthickness=5,
+                                        activeforeground='blue',
+                                        activebackground='brown',
+                                        highlightthickness=self.highlightthickness,
                                         background='brown',
                                         text=' ')
                                 l.grid(row=j, column =i)
                                 l.extra = (game_pos_x.index(i + 1),
                                            game_pos_y.index(j))
                                 l.bind("<Button-1>", self.placer_murv)
+                                l.bind("<Enter>", self.hilight)
+                                l.bind("<Leave>", self.unhilight)
                 else:
                     if (i in game_pos_mur) and (j in game_pos_y):
                         l = tk.Label(self.board,
@@ -266,13 +289,17 @@ class QuoridorX(quoridor.Quoridor):
                                  relief=tk.FLAT,
                                  takefocus=True,
                                  highlightcolor='blue',
-                                 highlightthickness=5,
+                                 activeforeground='blue',
+                                 activebackground='brown',
+                                 highlightthickness=self.highlightthickness,
                                  background='brown',
                                  text='')
                         l.grid(row=j, column =i)
                         l.extra = (game_pos_x.index(i + 1),
                                    game_pos_y.index(j))
                         l.bind("<Button-1>", self.placer_murv)
+                        l.bind("<Enter>", self.hilight)
+                        l.bind("<Leave>", self.unhilight)
 
 
     def set_automode(self, automode):
@@ -324,13 +351,17 @@ class QuoridorX(quoridor.Quoridor):
                          relief=tk.FLAT,
                          takefocus=True,
                          highlightcolor='blue',
-                         highlightthickness=5,
+                         activeforeground='blue',
+                         activebackground='#f9f9eb',
+                         highlightthickness=self.highlightthickness,
                          background='#f9f9eb',
                          text='')
                 l.grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
                        column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
                 l.extra = self.oldjoueurs[i]['pos']
                 l.bind("<Button-1>", self.bouger_joueur)
+                l.bind("<Enter>", self.hilight)
+                l.bind("<Leave>", self.unhilight)
                 
                 self.oldjoueurs[i]['pos'] = self.joueurs[i]['pos']
                 
@@ -341,13 +372,17 @@ class QuoridorX(quoridor.Quoridor):
                          relief=tk.FLAT,
                          takefocus=True,
                          highlightcolor='blue',
-                         highlightthickness=5,
+                         highlightthickness=self.highlightthickness,
+                         activeforeground='blue',
+                         activebackground='#ffcc99',
                          background='#ffcc99',
                          text=str(i + 1))
                 l.grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
                        column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
                 l.extra = self.oldjoueurs[i]['pos']
                 l.bind("<Button-1>", self.bouger_joueur)
+                l.bind("<Enter>", self.hilight)
+                l.bind("<Leave>", self.unhilight)
         
         # Vérifier si des murs horizontaux ont été placés
         if self.nombremurh < len(self.murh):
@@ -359,7 +394,7 @@ class QuoridorX(quoridor.Quoridor):
                         relief=tk.FLAT,
                         takefocus=True,
                         highlightcolor='blue',
-                        highlightthickness=5,
+                        highlightthickness=self.highlightthickness,
                         background='grey',
                         text='').grid(row=(game_pos_y[self.murh[-1][1]] + 1),
                                       column=(game_pos_x[self.murh[-1][0]] + (2 * i)))
@@ -387,7 +422,7 @@ class QuoridorX(quoridor.Quoridor):
                         relief=tk.FLAT,
                         takefocus=True,
                         highlightcolor='blue',
-                        highlightthickness=5,
+                        highlightthickness=self.highlightthickness,
                         background='grey',
                         text='').grid(row=(game_pos_y[self.murv[-1][1]] - (2 * i)),
                                       column=(game_pos_x[self.murv[-1][0]] - 1))
@@ -399,7 +434,7 @@ class QuoridorX(quoridor.Quoridor):
                      relief=tk.FLAT,
                      takefocus=True,
                      highlightcolor='blue',
-                     highlightthickness=5,
+                     highlightthickness=self.highlightthickness,
                      background='grey',
                      text='').grid(row=(game_pos_y[self.murv[-1][1]] - 1),
                                    column=(game_pos_x[self.murv[-1][0]] - 1))
@@ -508,6 +543,14 @@ class QuoridorX(quoridor.Quoridor):
                 return
         self.afficher()
 
+
+
+    def hilight(self, event):
+        event.widget['bg'] = event.widget['activeforeground']
+
+    
+    def unhilight(self, event):
+        event.widget['bg'] = event.widget['activebackground']
 
 
 
