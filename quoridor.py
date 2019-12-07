@@ -417,7 +417,61 @@ class Quoridor:
             return False
 
         try:
-            # trouver un adresse qui n'est pas dans notre propre chemin
+            # place holder pour le target du mur
+            target = (0, 0)
+            targetsens = 'horizontal'
+            targetcount = len(chemin2)
+            # objectifs
+            objectifs = ['B1', 'B2']
+            adversaire = 1
+            if adversaire == joueur:
+                adversaire = 2
+            # Itérer le long du chemin le plus court de l'adversaire
+            for c in chemin2[1:-1]:
+                # itérer sur les 2 sens possibles de murs
+                for sens in ['horizontal', 'vertical']:
+                    # Itérer sur les 4 positions possibles où placer un mur
+                    for pos in [((c[0] - 1), c[1]), ((c[0] + 1), (c[1] - 1)), (c[0], (c[1] - 1)), (c[0], (c[1] + 1))]:
+                        try:
+                            # Dresser un tableau avec le mur ajoué
+                            graphe = ''
+                            if sens == 'horizontal':
+                                graphe = construire_graphe([joueur['pos'] for joueur in self.joueurs],
+                                                            (self.murh + [pos]),
+                                                            self.murv
+                                                            )
+                            else:
+                                graphe = construire_graphe([joueur['pos'] for joueur in self.joueurs],
+                                                            self.murh,
+                                                            (self.murv + [pos])
+                                                            )
+                            # dresser les chemin avec le nouveau tableau
+                            chem1 = nx.shortest_path(graphe,
+                                                     tuple(self.joueurs[(joueur - 1)]['pos']),
+                                                     objectifs[(joueur - 1)])
+                            chem2 = nx.shortest_path(graphe,
+                                                     tuple(self.joueurs[(adversaire - 1)]['pos']),
+                                                     objectifs[(adversaire - 1)])
+                            # comparer les nouveau chemins à ceux de départ
+                            if len(chem2) > targetcount and len(chem1) <= len(chemin1):
+                                target = pos
+                                targetsens = sens
+                                targetcount =  len(chem2)
+                        # Si le mur ne peut pas être placé, essayer le prochain
+                        except nx.exception.NetworkXError:
+                            continue
+            # Placer le mur découvert
+            if self.mode == 'local':
+                self.placer_mur(joueur, target, targetsens)
+                return True
+            elif self.mode == 'server':
+                if targetsens == 'horizontal':
+                    return api.jouer_coup(self.gameid, 'MH', target)
+                else:
+                    return api.jouer_coup(self.gameid, 'MV', target)
+            else:
+                raise QuoridorError("mauvais mode de jeu!")
+            """# trouver un adresse qui n'est pas dans notre propre chemin
             target = 1
             for i in range(1, (len(chemin2) - 2)):
                 if chemin2[i] not in chemin1:
@@ -436,16 +490,18 @@ class Quoridor:
                 else:
                     return api.jouer_coup(self.gameid, 'MH', chemin2[target])
             else:
-                raise QuoridorError("not playing in any known mode!")
+                raise QuoridorError("not playing in any known mode!")"""
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except QuoridorError:
             return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
         except nx.exception.NetworkXError:
             return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+        except nx.exception.NetworkXNoPath:
+            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
         except RuntimeError:
             return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
-        except Exception:
-            print("exception inatendue")
+        except Exception as ex:
+            print("exception inatendue:", ex.__class__)
             return False
     
     def jouer_coup(self, joueur):
@@ -486,10 +542,12 @@ class Quoridor:
                                    objectifs[(adversaire - 1)])
         
         # utiliser le hasard pour déterminer si on deplace le jeton ou place un mur
-        dice = random.randint(1, 10)
+        #dice = random.randint(1, 10)
+        dice = random.choices([True, False], weights=[10, self.joueurs[(joueur-1)]['murs']], k=1)
         # varier le choix en fonction du nombre de murs qu'il reste à placer
         # compager si le chemin le plus rapide de l'adversaire est plus cours que celui du joueur
-        if (dice >= (self.joueurs[(joueur - 1)]['murs'] // 2)) or (len(chemin2) < len(chemin1)):
+        #if (dice >= (self.joueurs[(joueur - 1)]['murs'] // 2)) or (len(chemin2) < len(chemin1)):
+        if (dice == [True]) or (len(chemin2) < len(chemin1) <= 3) or len(chemin2) < (len(chemin1) - 2):
             result = self.auto_placer_mur(joueur, chemin1, chemin2, 1)
             if result:
                 return result
