@@ -10,7 +10,6 @@ Contient les fonctions:
         communiquer avec le serveur pour enregistrer le nouveau coup et obtenir l'etat
         de la table de jeu updatée.
 '''
-import unittest
 import requests
 
 

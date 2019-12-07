@@ -27,10 +27,10 @@ Contient les fonctions:
         - terminer le jeu
 '''
 import argparse
+import tkinter as tk
 import api
 import quoridor
 import quoridorx
-import tkinter as tk
 
 
 def analyser_commande():
@@ -59,12 +59,12 @@ def analyser_commande():
                         dest='graphique',
                         action='store_true',
                         help="Jouer en mode manuel contre le serveur avec le nom idul, " +
-                              "mais avec un affichage dans une fenêtre graphique")
+                        "mais avec un affichage dans une fenêtre graphique")
     parser.add_argument('-ax',
                         dest='autographique',
                         action='store_true',
                         help="Jouer en mode automatique contre le serveur avec le nom idul, " +
-                              "mais avec un affichage dans une fenêtre graphique")
+                        "mais avec un affichage dans une fenêtre graphique")
     parser.add_argument('idul',
                         default='nom_du_joueur',
                         help="IDUL du joueur.")
@@ -122,7 +122,7 @@ def prompt_player():
 def jeu_manuel_serveur(idul):
     """mode de jeu permettant de jouer en mode manuel contre le serveur
     - Les commandes sont entrées via le terminal
-    - L'affichage s'effectue via le terminal en art ascii    
+    - L'affichage s'effectue via le terminal en art ascii
     Arguments:
         idul {str} -- L'identifiant du joueur
     """
@@ -162,7 +162,7 @@ def jeu_manuel_serveur(idul):
 def jeu_auto_serveur(idul):
     """jouer contre le serveur en mode automatique
     - le jeu est géré par le AI
-    - l'affichage se fait dans le terminal    
+    - l'affichage se fait dans le terminal
     Arguments:
         idul {str} -- L'identifiant du joueur
     """
@@ -194,7 +194,7 @@ def jeu_auto_serveur(idul):
 def jeu_manuel_graphique_serveur(idul):
     """jeu manuel affiché dans un interface graphique
     - Les coups sont entrés dans l'interface graphique
-    - L'affichage se fait dans l'interface graphique    
+    - L'affichage se fait dans l'interface graphique
     Arguments:
         idul {str} -- L'identifiant du joueur
     """
@@ -210,7 +210,7 @@ def jeu_manuel_graphique_serveur(idul):
 def jeu_auto_graphique_serveur(idul):
     """jeu automatique affiché dans un interface graphique
     - Les coup sont gérés par l'AI
-    - L'affichage se fait dans l'interface graphique    
+    - L'affichage se fait dans l'interface graphique
     Arguments:
         idul {str} -- L'identifiant du joueur
     """
@@ -226,7 +226,7 @@ def jeu_auto_graphique_serveur(idul):
 
 def repartition_options(options):
     """Fonction qui reçois des options de analyser_commande
-    et enclanche les mécanismes de jeu en fonction de ces derniers    
+    et enclanche les mécanismes de jeu en fonction de ces derniers
     Arguments:
         options {nameplace} -- liste des options dans lesquelles le jeu se déroulera
     """
@@ -245,11 +245,6 @@ def repartition_options(options):
     else:
         jeu_manuel_serveur(options.idul)
 
-    
-
 
 if __name__ == "__main__":
     repartition_options(analyser_commande())
-    
-    
-

@@ -9,8 +9,7 @@ from tkinter import messagebox as mb
 
 
 class QuoridorX(quoridor.Quoridor):
-    
-    
+
     def __init__(self, joueurs, murs=None):
         """initialisation de l'affichage du jeu
         Arguments:
@@ -38,12 +37,11 @@ class QuoridorX(quoridor.Quoridor):
         case_jeu_dimensions = [3, 3]
         mur_h_dimensions = [3, 1]
         mur_v_dimensions = [1, 3]
-        
         # make row labels
         for r in range(1, 10):
             tk.Label(self.root,
                      text=str(10-r)).grid(row=(3 + ((r - 1) * 2)),
-                                        column=1)
+                                          column=1)
         
         # Make column labels
         for r in range(1, 10):
@@ -57,8 +55,8 @@ class QuoridorX(quoridor.Quoridor):
         for num, r in enumerate([23, 2]):
             # Murs des 2 joueurs
             tk.Label(self.root,
-                    text="Joueur {} = {}".format((num + 1), self.joueurs[num]['nom']),
-                    height=1).grid(column=10,row=(r - 1))
+                     text="Joueur {} = {}".format((num + 1), self.joueurs[num]['nom']),
+                     height=1).grid(column=10, row=(r - 1))
             self.murholders[num] = tk.Frame(self.root,
                                             background='grey',
                                             borderwidth=2,
@@ -88,16 +86,14 @@ class QuoridorX(quoridor.Quoridor):
                         row=3,
                         rowspan=17,
                         sticky='n')
-
         # dresser la table de jeu
         for i in range(1, 18):
             for j in range(1, 18):
-                
                 # Cases de jeu principales
                 for numero, joueur in enumerate(self.joueurs):
                     if (game_pos_x[joueur['pos'][0]], game_pos_y[joueur['pos'][1]]) == (i, j):
                         l = tk.Label(self.board,
-                                     width = case_jeu_dimensions[0],
+                                     width=case_jeu_dimensions[0],
                                      height=case_jeu_dimensions[1],
                                      relief=tk.FLAT,
                                      borderwidth=1,
@@ -117,7 +113,7 @@ class QuoridorX(quoridor.Quoridor):
                     else:
                         if (i in game_pos_x) and (j in game_pos_y):
                             l = tk.Label(self.board,
-                                         width = case_jeu_dimensions[0],
+                                         width=case_jeu_dimensions[0],
                                          height=case_jeu_dimensions[1],
                                          relief=tk.FLAT,
                                          borderwidth=1,
@@ -134,13 +130,12 @@ class QuoridorX(quoridor.Quoridor):
                             l.bind("<Button-1>", self.bouger_joueur)
                             l.bind("<Enter>", self.hilight)
                             l.bind("<Leave>", self.unhilight)
-                
                 # Murs horizontaux
                 if len(self.murh) > 0:
                     for wallh in self.murh:
                         if (game_pos_x[wallh[0]], game_pos_y[wallh[1]]) == (i, (j - 1)):
                             tk.Label(self.board,
-                                     width = mur_h_dimensions[0],
+                                     width=mur_h_dimensions[0],
                                      height=mur_h_dimensions[1],
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -153,7 +148,7 @@ class QuoridorX(quoridor.Quoridor):
                                      text='').grid(row=j, column =i)
                             # remplissage de la case vide
                             tk.Label(self.board,
-                                     width = 1,
+                                     width=1,
                                      height=1,
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -166,7 +161,7 @@ class QuoridorX(quoridor.Quoridor):
                         # décallage: x + 1
                         elif (game_pos_x[(wallh[0] + 1)], game_pos_y[wallh[1]]) == (i, (j - 1)):
                             tk.Label(self.board,
-                                     width = mur_h_dimensions[0],
+                                     width=mur_h_dimensions[0],
                                      height=mur_h_dimensions[1],
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -179,7 +174,7 @@ class QuoridorX(quoridor.Quoridor):
                         else:
                             if (i in game_pos_x) and (j in game_pos_mur):
                                 l = tk.Label(self.board,
-                                             width = mur_h_dimensions[0],
+                                             width=mur_h_dimensions[0],
                                              height=mur_h_dimensions[1],
                                              background='brown',
                                              borderwidth=1,
@@ -192,14 +187,14 @@ class QuoridorX(quoridor.Quoridor):
                                              text='')
                                 l.grid(row=j, column =i)
                                 l.extra = (game_pos_x.index(i),
-                                        game_pos_y.index(j - 1))
+                                           game_pos_y.index(j - 1))
                                 l.bind("<Button-1>", self.placer_murh)
                                 l.bind("<Enter>", self.hilight)
                                 l.bind("<Leave>", self.unhilight)
                 else:
                     if (i in game_pos_x) and (j in game_pos_mur):
                         l = tk.Label(self.board,
-                                     width = mur_h_dimensions[0],
+                                     width=mur_h_dimensions[0],
                                      height=mur_h_dimensions[1],
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -216,13 +211,12 @@ class QuoridorX(quoridor.Quoridor):
                         l.bind("<Button-1>", self.placer_murh)
                         l.bind("<Enter>", self.hilight)
                         l.bind("<Leave>", self.unhilight)
-                
                 #Murs verticaux
                 if len(self.murv) > 0:
                     for wallv in self.murv:
                         if (game_pos_x[wallv[0]], game_pos_y[wallv[1]]) == ((i + 1), j):
                             tk.Label(self.board,
-                                     width = mur_v_dimensions[0],
+                                     width=mur_v_dimensions[0],
                                      height=mur_v_dimensions[1],
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -233,7 +227,7 @@ class QuoridorX(quoridor.Quoridor):
                                      text='').grid(row=j, column =i)
                             # remplissage de la case vide
                             tk.Label(self.board,
-                                     width = 1,
+                                     width=1,
                                      height=1,
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -246,7 +240,7 @@ class QuoridorX(quoridor.Quoridor):
                         # décallage: y + 1
                         elif (game_pos_x[wallv[0]], game_pos_y[(wallv[1] + 1)]) == ((i + 1), j):
                             tk.Label(self.board,
-                                     width = mur_v_dimensions[0],
+                                     width=mur_v_dimensions[0],
                                      height=mur_v_dimensions[1],
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -259,7 +253,7 @@ class QuoridorX(quoridor.Quoridor):
                         else:
                             if (i in game_pos_mur) and (j in game_pos_y):
                                 l = tk.Label(self.board,
-                                             width = mur_v_dimensions[0],
+                                             width=mur_v_dimensions[0],
                                              height=mur_v_dimensions[1],
                                              borderwidth=1,
                                              relief=tk.FLAT,
@@ -279,7 +273,7 @@ class QuoridorX(quoridor.Quoridor):
                 else:
                     if (i in game_pos_mur) and (j in game_pos_y):
                         l = tk.Label(self.board,
-                                     width = mur_v_dimensions[0],
+                                     width=mur_v_dimensions[0],
                                      height=mur_v_dimensions[1],
                                      borderwidth=1,
                                      relief=tk.FLAT,
@@ -300,7 +294,7 @@ class QuoridorX(quoridor.Quoridor):
 
     def set_automode(self, automode):
         """Setter pour automode
-        Set automode à True et demarre le timer        
+        Set automode à True et demarre le timer
         Arguments:
             automode {bool} -- automode state
         """
@@ -343,7 +337,7 @@ class QuoridorX(quoridor.Quoridor):
             if self.oldjoueurs[i]['pos'] != self.joueurs[i]['pos']:
                 #effacer l'ancienne position du joueur
                 l = tk.Label(self.board,
-                             width = case_jeu_dimensions[0],
+                             width=case_jeu_dimensions[0],
                              height=case_jeu_dimensions[1],
                              borderwidth=1,
                              relief=tk.FLAT,
@@ -396,7 +390,7 @@ class QuoridorX(quoridor.Quoridor):
                                        column=(game_pos_x[self.murh[-1][0]] + (2 * i)))
             # Remplissage de la case vide
             tk.Label(self.board,
-                     width = 1,
+                     width=1,
                      height=1,
                      borderwidth=1,
                      relief=tk.FLAT,
@@ -424,7 +418,7 @@ class QuoridorX(quoridor.Quoridor):
                                        column=(game_pos_x[self.murv[-1][0]] - 1))
             # Remplissage de la case vide
             tk.Label(self.board,
-                     width = 1,
+                     width=1,
                      height=1,
                      borderwidth=1,
                      relief=tk.FLAT,

@@ -329,7 +329,7 @@ class Quoridor:
 
 
     def set_mode(self, mode):
-        """setter for the game mode        
+        """setter for the game mode
         Arguments:
             mode {str} -- 'local' of 'server'
         """
@@ -337,7 +337,7 @@ class Quoridor:
 
     
     def set_id(self, gameid):
-        """setter for the id of the game        
+        """setter for the id of the game
         Arguments:
             gameid {int} -- the id of the game
         """
@@ -345,13 +345,13 @@ class Quoridor:
 
 
     def get_id(self):
-        """getter for the id of the game        
+        """getter for the id of the game
         Returns:
             gameif {int} -- the id of the game
         """
         return self.gameid
 
-    
+
     def set_automode(self, automode):
         """setter for automode
         Arguments:
@@ -426,8 +426,10 @@ class Quoridor:
         Returns:
             bool -- True si on a bien reussi a placer un mur. False sinon
         """
-        # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
-        # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
+        # comparer le chemin le plus cours de notre joueur avec
+        # celui de l'adversaire
+        # si le plus cours chemin de l'adversaire est plus cours,
+        # placer un mur pour lui barrer le chemin
         if attempts >= 2:
             return False
 
@@ -442,17 +444,22 @@ class Quoridor:
                 # itérer sur les 2 sens possibles de murs
                 for sens in ['horizontal', 'vertical']:
                     # Itérer sur les 4 positions possibles où placer un mur
-                    for pos in [((c[0] - 1), c[1]), ((c[0] + 1), (c[1] - 1)), (c[0], (c[1] - 1)), (c[0], (c[1] + 1))]:
+                    for pos in [((c[0] - 1), c[1]),
+                                ((c[0] + 1), (c[1])),
+                                (c[0], (c[1] - 1)),
+                                (c[0], (c[1] + 1))]:
                         try:
                             # Dresser un tableau avec le mur ajoué
                             graphe = ''
                             if sens == 'horizontal':
-                                graphe = construire_graphe([joueur['pos'] for joueur in self.joueurs],
+                                graphe = construire_graphe([joueur['pos'] for
+                                                            joueur in self.joueurs],
                                                            (self.murh + [pos]),
                                                            self.murv
                                                           )
                             else:
-                                graphe = construire_graphe([joueur['pos'] for joueur in self.joueurs],
+                                graphe = construire_graphe([joueur['pos'] for
+                                                            joueur in self.joueurs],
                                                            self.murh,
                                                            (self.murv + [pos])
                                                           )
@@ -524,11 +531,9 @@ class Quoridor:
         chemin1 = nx.shortest_path(graphe,
                                    tuple(self.joueurs[(joueur - 1)]['pos']),
                                    objectifs[(joueur - 1)])
-
         chemin2 = nx.shortest_path(graphe,
                                    tuple(self.joueurs[(adversaire - 1)]['pos']),
                                    objectifs[(adversaire - 1)])
-        
         # utiliser le hasard pour déterminer si on deplace le jeton ou place un mur
         dice = random.choices([True, False], weights=[10, self.joueurs[(joueur-1)]['murs']], k=1)
         # varier le choix en fonction du nombre de murs qu'il reste à placer
