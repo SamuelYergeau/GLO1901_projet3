@@ -413,14 +413,14 @@ class Quoridor:
         """
         # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
         # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
-        if attempts >= 4:
+        if attempts >= 2:
             return False
 
         try:
             # place holder pour le target du mur
-            target = (0, 0)
-            targetsens = 'horizontal'
-            targetcount = len(chemin2)
+            #target = (0, 0)
+            #targetsens = 'horizontal'
+            #targetcount = len(chemin2)
             # objectifs
             objectifs = ['B1', 'B2']
             adversaire = 1
@@ -453,15 +453,25 @@ class Quoridor:
                                                      tuple(self.joueurs[(adversaire - 1)]['pos']),
                                                      objectifs[(adversaire - 1)])
                             # comparer les nouveau chemins à ceux de départ
-                            if len(chem2) > targetcount and len(chem1) <= len(chemin1):
-                                target = pos
-                                targetsens = sens
-                                targetcount =  len(chem2)
+                            if len(chem2) > len(chemin2) and len(chem1) <= len(chemin1):
+                                #target = pos
+                                #targetsens = sens
+                                #targetcount =  len(chem2)
+                                if self.mode == 'local':
+                                    self.placer_mur(joueur, pos, sens)
+                                    return True
+                                elif self.mode == 'server':
+                                    if sens == 'horizontal':
+                                        return api.jouer_coup(self.gameid, 'MH', pos)
+                                    else:
+                                        return api.jouer_coup(self.gameid, 'MV', pos)
+                                else:
+                                    raise QuoridorError("mauvais mode de jeu!")
                         # Si le mur ne peut pas être placé, essayer le prochain
                         except nx.exception.NetworkXError:
                             continue
             # Placer le mur découvert
-            if self.mode == 'local':
+            """if self.mode == 'local':
                 self.placer_mur(joueur, target, targetsens)
                 return True
             elif self.mode == 'server':
@@ -470,7 +480,7 @@ class Quoridor:
                 else:
                     return api.jouer_coup(self.gameid, 'MV', target)
             else:
-                raise QuoridorError("mauvais mode de jeu!")
+                raise QuoridorError("mauvais mode de jeu!")"""
             """# trouver un adresse qui n'est pas dans notre propre chemin
             target = 1
             for i in range(1, (len(chemin2) - 2)):
