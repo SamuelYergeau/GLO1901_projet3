@@ -470,37 +470,6 @@ class Quoridor:
                         # Si le mur ne peut pas être placé, essayer le prochain
                         except nx.exception.NetworkXError:
                             continue
-            # Placer le mur découvert
-            """if self.mode == 'local':
-                self.placer_mur(joueur, target, targetsens)
-                return True
-            elif self.mode == 'server':
-                if targetsens == 'horizontal':
-                    return api.jouer_coup(self.gameid, 'MH', target)
-                else:
-                    return api.jouer_coup(self.gameid, 'MV', target)
-            else:
-                raise QuoridorError("mauvais mode de jeu!")"""
-            """# trouver un adresse qui n'est pas dans notre propre chemin
-            target = 1
-            for i in range(1, (len(chemin2) - 2)):
-                if chemin2[i] not in chemin1:
-                    target = i
-            # selon si on joue en local ou contre le serveur
-            if self.mode == 'local':
-                # trouver s'il s'agit d'un mouvement horizontal ou vertical
-                if not chemin2[target][0] == chemin2[(target - 1)][0]:
-                    self.placer_mur(joueur, chemin2[target], 'vertical')
-                else:
-                    self.placer_mur(joueur, chemin2[target], 'horizontal')
-                return True
-            elif self.mode == 'server':
-                if not chemin2[target][0] == chemin2[(target - 1)][0]:
-                    return api.jouer_coup(self.gameid, 'MV', chemin2[target])
-                else:
-                    return api.jouer_coup(self.gameid, 'MH', chemin2[target])
-            else:
-                raise QuoridorError("not playing in any known mode!")"""
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except QuoridorError:
             return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))

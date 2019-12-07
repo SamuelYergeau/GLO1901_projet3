@@ -304,7 +304,8 @@ class QuoridorX(quoridor.Quoridor):
 
     def set_automode(self, automode):
         self.automode = automode
-        self.root.after(75, self.auto_play)
+        if self.automode == True:
+            self.root.after(75, self.auto_play)
 
 
     def auto_play(self):
@@ -317,9 +318,9 @@ class QuoridorX(quoridor.Quoridor):
         except quoridor.QuoridorError:
             self.afficher()
         except StopIteration as si:
-            print('gagnant: ', si)
-            #self.verification_victoire()
-        if self.set_automode:
+            mb.showinfo("Fin de partie", "le joueur {} a gagné la partie!".format(si))
+            return
+        if self.automode == True:
             self.root.after(75, self.auto_play)
 
 
@@ -542,11 +543,13 @@ class QuoridorX(quoridor.Quoridor):
 
 
     def hilight(self, event):
-        event.widget['bg'] = event.widget['activeforeground']
+        if self.automode == False:
+            event.widget['bg'] = event.widget['activeforeground']
 
     
     def unhilight(self, event):
-        event.widget['bg'] = event.widget['activebackground']
+        if self.automode == False:
+            event.widget['bg'] = event.widget['activebackground']
 
 
 
