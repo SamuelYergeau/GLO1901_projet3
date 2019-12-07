@@ -7,8 +7,8 @@ contient les classes:
 """
 import unittest
 import copy
-import networkx as nx
 import random
+import networkx as nx
 import api
 
 
@@ -335,7 +335,7 @@ class Quoridor:
         """
         self.mode = mode
 
-    
+
     def set_id(self, gameid):
         """setter for the id of the game
         Arguments:
@@ -494,11 +494,8 @@ class Quoridor:
                                         chemin1[attempts:],
                                         chemin2[attempts:],
                                         (attempts + 1))
-        except Exception as ex:
-            print("exception inatendue:", ex.__class__)
-            return False
-    
-    
+
+
     def jouer_coup(self, joueur):
         """
         jouer_coup
@@ -538,11 +535,13 @@ class Quoridor:
         dice = random.choices([True, False], weights=[10, self.joueurs[(joueur-1)]['murs']], k=1)
         # varier le choix en fonction du nombre de murs qu'il reste à placer
         # compager si le chemin le plus rapide de l'adversaire est plus cours que celui du joueur
-        if (dice == [True]) or (len(chemin2) < len(chemin1) <= 3) or len(chemin2) < (len(chemin1) - 2):
+        if ((dice == [True]) or
+            (len(chemin2) < len(chemin1) <= 3) or
+            len(chemin2) < (len(chemin1) - 2)):
             result = self.auto_placer_mur(joueur, chemin1, chemin2, 1)
             if result:
                 return result
-        
+    
         # Sinon, bouger le joueur selon le plus court chemin
         if self.mode == 'local':
             self.déplacer_jeton(joueur, chemin1[1])
@@ -551,7 +550,7 @@ class Quoridor:
         else:
             raise QuoridorError("wrong mode!")
 
-    
+
     def partie_terminée(self):
         """
         partie_terminée
