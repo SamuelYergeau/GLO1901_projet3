@@ -309,7 +309,7 @@ class QuoridorX(quoridor.Quoridor):
 
     def auto_play(self):
         try:
-            nouveaujeu = self.jouer_coup(1)['état']
+            nouveaujeu = self.jouer_coup(1)
             self.joueurs = nouveaujeu['joueurs']
             self.murh = nouveaujeu['murs']['horizontaux']
             self.murv = nouveaujeu['murs']['verticaux']
@@ -318,11 +318,7 @@ class QuoridorX(quoridor.Quoridor):
             self.afficher()
         except StopIteration as si:
             print('gagnant: ', si)
-            self.joueurs = nouveaujeu['joueurs']
-            self.murh = nouveaujeu['murs']['horizontaux']
-            self.murv = nouveaujeu['murs']['verticaux']
-            self.afficher()
-            self.verification_victoire()
+            #self.verification_victoire()
         if self.set_automode:
             self.root.after(75, self.auto_play)
 

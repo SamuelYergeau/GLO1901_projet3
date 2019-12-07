@@ -11,7 +11,9 @@ Contient les fonctions:
         communiquer avec le serveur pour enregistrer le nouveau coup et obtenir l'etat
         de la table de jeu updatée.
 '''
+import unittest
 import requests
+
 
 
 # URL du server python à contacter
@@ -42,7 +44,7 @@ def lister_parties(idul):
             raise RuntimeError(rep["message"])
     else:
         print(f"Le GET sur {URL_BASE+'lister'} a produit le code d'erreur {rep.status_code}.")
-    return rep
+    return rep['parties']
 
 
 
@@ -74,7 +76,7 @@ def débuter_partie(idul):
             raise RuntimeError(rep["message"])
     else:
         print(f"Le GET sur {URL_BASE+'lister'} a produit le code d'erreur {rep.status_code}.")
-    return rep
+    return (rep['id'], rep['état'])
 
 
 
@@ -118,4 +120,24 @@ def jouer_coup(id_partie, type_coup, position):
         # tester s'il y a un gagnant
     else:
         print(f"Le GET sur {URL_BASE+'lister'} a produit le code d'erreur {rep.status_code}.")
-    return rep
+    return rep['état']
+
+
+class TestApi(unittest.TestCase):
+    """classe pour tester les fonctions du module API
+    """
+        
+    def test_lister_parties(self):
+        pass
+        #print(lister_parties('TEST'))
+
+    def test_débuter_partie(self):
+        pass
+        #print(débuter_partie('TEST42'))
+
+    def test_jouer_coup(self):
+        pass
+    
+    
+if __name__ == '__main__':
+    unittest.main(argv=[''], verbosity=2, exit=False)

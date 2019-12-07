@@ -87,7 +87,7 @@ def listing(idul):
     gamelist = api.lister_parties(idul)
     print("voici la liste de vos 20 dernières parties jouées")
     # itérer sur chaque parties à afficher
-    for gamenumber, game in enumerate(gamelist['parties']):
+    for gamenumber, game in enumerate(gamelist):
         print("partie NO.", gamenumber)
         print("game ID:", game['id'])
         # afficher l'état final du jeu
@@ -129,8 +129,8 @@ def jeu_manuel_serveur(idul):
     """
     # débuter le jeu
     nouveaujeu = api.débuter_partie(idul)
-    jeu = quoridor.Quoridor(nouveaujeu['état']['joueurs'])
-    gameid = nouveaujeu['id']
+    jeu = quoridor.Quoridor(nouveaujeu[1]['joueurs'])
+    gameid = nouveaujeu[0]
     jeu.set_mode('server')
     jeu.set_automode('False')
     # afficher le jeu
@@ -143,11 +143,11 @@ def jeu_manuel_serveur(idul):
 
         # jouer le coup
         try:
-            nouveaujeu = api.jouer_coup(gameid, coup[0], (coup[1], coup[2]))['état']
+            nouveaujeu = api.jouer_coup(gameid, coup[0], (coup[1], coup[2]))
             jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
             print(jeu)
         except quoridor.QuoridorError:
-            jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
+            #jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
             print(jeu)
         except RuntimeError as r:
             print("\nERREUR!: ", r, '\n')
@@ -170,8 +170,8 @@ def jeu_auto_serveur(idul):
         idul {str} -- L'identifiant du joueur
     """
     nouveaujeu = api.débuter_partie(idul)
-    jeu = quoridor.Quoridor(nouveaujeu['état']['joueurs'])
-    jeu.set_id(nouveaujeu['id'])
+    jeu = quoridor.Quoridor(nouveaujeu[1]['joueurs'])
+    jeu.set_id(nouveaujeu[0])
     jeu.set_mode('server')
     jeu.set_automode('True')
     # afficher le jeu
@@ -181,13 +181,13 @@ def jeu_auto_serveur(idul):
     while True:
         # obtenir le prochain coup
         try:
-            nouveaujeu = jeu.jouer_coup(1)['état']
+            nouveaujeu = jeu.jouer_coup(1)
             jeu.joueurs = nouveaujeu['joueurs']
             jeu.murh = nouveaujeu['murs']['horizontaux']
             jeu.murv = nouveaujeu['murs']['verticaux']
             print(jeu)
         except quoridor.QuoridorError:
-            jeu.joueurs = nouveaujeu['joueurs']
+            #jeu.joueurs = nouveaujeu['joueurs']
             print(jeu)
         except StopIteration as si:
             print('gagnant: ', si)
@@ -203,8 +203,8 @@ def jeu_manuel_graphique_serveur(idul):
         idul {str} -- L'identifiant du joueur
     """
     nouvellepartie = api.débuter_partie(idul)
-    game_id = nouvellepartie['id']
-    jeu = quoridorx.QuoridorX(nouvellepartie['état']['joueurs'])
+    game_id = nouvellepartie[0]
+    jeu = quoridorx.QuoridorX(nouvellepartie[1]['joueurs'])
 
     # set le jeu pour jouer avec le serveur
     jeu.set_mode('server')
@@ -220,8 +220,8 @@ def jeu_auto_graphique_serveur(idul):
         idul {str} -- L'identifiant du joueur
     """
     nouvellepartie = api.débuter_partie(idul)
-    game_id = nouvellepartie['id']
-    jeu = quoridorx.QuoridorX(nouvellepartie['état']['joueurs'])
+    game_id = nouvellepartie[0]
+    jeu = quoridorx.QuoridorX(nouvellepartie[1]['joueurs'])
 
     # set le jeu pour jouer avec le serveur
     jeu.set_mode('server')
