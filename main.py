@@ -31,7 +31,6 @@ import api
 import quoridor
 import quoridorx
 import tkinter as tk
-from tkinter import simpledialog as sd
 
 
 def analyser_commande():
@@ -48,7 +47,6 @@ def analyser_commande():
         description="Jeu Quoridor - phase 1"
     )
     # indiquer au joueur d'entrer son nom
-    
     parser.add_argument('-l', '--lister',
                         dest='lister',
                         action='store_true',
@@ -90,8 +88,9 @@ def listing(idul):
     for gamenumber, game in enumerate(gamelist):
         print("partie NO.", gamenumber)
         print("game ID:", game['id'])
-        # afficher l'état final du jeu
-        #afficher_damier_ascii(game['état'])
+        jeu = quoridor.Quoridor(game['état']['joueurs'],
+                                game['état']['murs'])
+        print(jeu)
 
 
 def prompt_player():
@@ -135,12 +134,10 @@ def jeu_manuel_serveur(idul):
     jeu.set_automode('False')
     # afficher le jeu
     print(jeu)
-
     # boucler
     while True:
         # demander au joueur son prochain coup
         coup = prompt_player()
-
         # jouer le coup
         try:
             nouveaujeu = api.jouer_coup(gameid, coup[0], (coup[1], coup[2]))
@@ -176,7 +173,6 @@ def jeu_auto_serveur(idul):
     jeu.set_automode('True')
     # afficher le jeu
     print(jeu)
-
     # boucler
     while True:
         # obtenir le prochain coup
@@ -205,7 +201,6 @@ def jeu_manuel_graphique_serveur(idul):
     nouvellepartie = api.débuter_partie(idul)
     game_id = nouvellepartie[0]
     jeu = quoridorx.QuoridorX(nouvellepartie[1]['joueurs'])
-
     # set le jeu pour jouer avec le serveur
     jeu.set_mode('server')
     jeu.set_id(game_id)
@@ -222,16 +217,11 @@ def jeu_auto_graphique_serveur(idul):
     nouvellepartie = api.débuter_partie(idul)
     game_id = nouvellepartie[0]
     jeu = quoridorx.QuoridorX(nouvellepartie[1]['joueurs'])
-
     # set le jeu pour jouer avec le serveur
     jeu.set_mode('server')
     jeu.set_id(game_id)
     jeu.set_automode(True)
-    tk.mainloop()    
-
-
-def jeu_manuel():
-    pass
+    tk.mainloop()
 
 
 def repartition_options(options):
@@ -243,7 +233,6 @@ def repartition_options(options):
     # check if more than one option is true
     if sum([options.auto, options.graphique, options.autographique, options.lister]) > 1:
         raise ValueError("too many options chosen!")
-
     # sent every option to their respective function
     if options.lister:
         pass

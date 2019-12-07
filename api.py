@@ -1,5 +1,4 @@
 '''api.py
-
 fonction pour communiquer avec le serveur python
 Contient les fonctions:
     - lister_parties (projet)
@@ -121,23 +120,3 @@ def jouer_coup(id_partie, type_coup, position):
     else:
         print(f"Le GET sur {URL_BASE+'lister'} a produit le code d'erreur {rep.status_code}.")
     return rep['état']
-
-
-class TestApi(unittest.TestCase):
-    """classe pour tester les fonctions du module API
-    """
-        
-    def test_lister_parties(self):
-        pass
-        #print(lister_parties('TEST'))
-
-    def test_débuter_partie(self):
-        pass
-        #print(débuter_partie('TEST42'))
-
-    def test_jouer_coup(self):
-        pass
-    
-    
-if __name__ == '__main__':
-    unittest.main(argv=[''], verbosity=2, exit=False)

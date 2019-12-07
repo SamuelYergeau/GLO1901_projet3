@@ -18,9 +18,9 @@ def graphe_helper(murs_horizontaux, murs_verticaux):
         Simple fonction de segmentation
     """
     graphe = nx.DiGraph()
-
     # pour chaque colonne du damier
     for x in range(1, 10):
+
         # pour chaque ligne du damier
         for y in range(1, 10):
             # ajouter les arcs de tous les déplacements possibles pour cette tuile
@@ -329,17 +329,34 @@ class Quoridor:
 
 
     def set_mode(self, mode):
+        """setter for the game mode        
+        Arguments:
+            mode {str} -- 'local' of 'server'
+        """
         self.mode = mode
 
     
     def set_id(self, gameid):
+        """setter for the id of the game        
+        Arguments:
+            gameid {int} -- the id of the game
+        """
         self.gameid = gameid
 
+
     def get_id(self):
+        """getter for the id of the game        
+        Returns:
+            gameif {int} -- the id of the game
+        """
         return self.gameid
 
     
     def set_automode(self, automode):
+        """setter for automode
+        Arguments:
+            automode {bool} -- True/false automode bool
+        """
         self.automode = automode
 
 
@@ -400,16 +417,14 @@ class Quoridor:
     def auto_placer_mur(self, joueur, chemin1, chemin2, attempts):
         """fonction pour assister jouer_coup
         Place un mur automatiquement dans le chemin du joueur adverse
-        en fonction de son shortest_path        
+        en fonction de son shortest_path
         Arguments:
             joueur {int} -- int (1 ou 2) du joueur pour lequel on joue le coup
             chemin1 {list} -- shortest_path du joueur qui place un mur
             chemin2 {list} -- shortest_path du joueur adverse
             attempts {int} -- nombre d'essai ayant été effectuées
-        
         Returns:
             bool -- True si on a bien reussi a placer un mur. False sinon
-            TODO: faire un truc pour eciter les colisions en plaçant des murs entre mur-mur et entre mur-edge
         """
         # comparer le chemin le plus cours de notre joueur avec celui de l'adversaire
         # si le plus cours chemin de l'adversaire est plus cours, placer un mur pour lui barrer le chemin
@@ -417,10 +432,6 @@ class Quoridor:
             return False
 
         try:
-            # place holder pour le target du mur
-            #target = (0, 0)
-            #targetsens = 'horizontal'
-            #targetcount = len(chemin2)
             # objectifs
             objectifs = ['B1', 'B2']
             adversaire = 1
@@ -437,14 +448,14 @@ class Quoridor:
                             graphe = ''
                             if sens == 'horizontal':
                                 graphe = construire_graphe([joueur['pos'] for joueur in self.joueurs],
-                                                            (self.murh + [pos]),
-                                                            self.murv
-                                                            )
+                                                           (self.murh + [pos]),
+                                                           self.murv
+                                                          )
                             else:
                                 graphe = construire_graphe([joueur['pos'] for joueur in self.joueurs],
-                                                            self.murh,
-                                                            (self.murv + [pos])
-                                                            )
+                                                           self.murh,
+                                                           (self.murv + [pos])
+                                                          )
                             # dresser les chemin avec le nouveau tableau
                             chem1 = nx.shortest_path(graphe,
                                                      tuple(self.joueurs[(joueur - 1)]['pos']),
@@ -454,9 +465,6 @@ class Quoridor:
                                                      objectifs[(adversaire - 1)])
                             # comparer les nouveau chemins à ceux de départ
                             if len(chem2) > len(chemin2) and len(chem1) <= len(chemin1):
-                                #target = pos
-                                #targetsens = sens
-                                #targetcount =  len(chem2)
                                 if self.mode == 'local':
                                     self.placer_mur(joueur, pos, sens)
                                     return True
@@ -471,17 +479,18 @@ class Quoridor:
                         except nx.exception.NetworkXError:
                             continue
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
-        except QuoridorError:
-            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
-        except nx.exception.NetworkXError:
-            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
-        except nx.exception.NetworkXNoPath:
-            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
-        except RuntimeError:
-            return self.auto_placer_mur(joueur, chemin1[attempts:], chemin2[attempts:], (attempts + 1))
+        except (QuoridorError,
+                nx.exception.NetworkXError,
+                nx.exception.NetworkXNoPath,
+                RuntimeError):
+            return self.auto_placer_mur(joueur,
+                                        chemin1[attempts:],
+                                        chemin2[attempts:],
+                                        (attempts + 1))
         except Exception as ex:
             print("exception inatendue:", ex.__class__)
             return False
+    
     
     def jouer_coup(self, joueur):
         """
@@ -521,11 +530,9 @@ class Quoridor:
                                    objectifs[(adversaire - 1)])
         
         # utiliser le hasard pour déterminer si on deplace le jeton ou place un mur
-        #dice = random.randint(1, 10)
         dice = random.choices([True, False], weights=[10, self.joueurs[(joueur-1)]['murs']], k=1)
         # varier le choix en fonction du nombre de murs qu'il reste à placer
         # compager si le chemin le plus rapide de l'adversaire est plus cours que celui du joueur
-        #if (dice >= (self.joueurs[(joueur - 1)]['murs'] // 2)) or (len(chemin2) < len(chemin1)):
         if (dice == [True]) or (len(chemin2) < len(chemin1) <= 3) or len(chemin2) < (len(chemin1) - 2):
             result = self.auto_placer_mur(joueur, chemin1, chemin2, 1)
             if result:
@@ -680,26 +687,26 @@ class TestQuoridor(unittest.TestCase):
                        "--|-----------------------------------\n" +
                        "  | 1   2   3   4   5   6   7   8   9\n")
         partie_existante_rootau = ("légende: 1=foo 2=bar\n" +
-                                    "   -----------------------------------\n" +
-                                    "9 | .   .   .   .   .   .   .   .   . |\n" +
-                                    "  |                                   |\n" +
-                                    "8 | .   .   .   .   .   . | .   .   . |\n" +
-                                    "  |        ------- -------|-------    |\n" +
-                                    "7 | .   .   .   .   2   . | .   .   . |\n" +
-                                    "  |                                   |\n" +
-                                    "6 | . | .   .   .   1   . | .   .   . |\n" +
-                                    "  |   |-------            |           |\n" +
-                                    "5 | . | .   . | .   .   . | .   .   . |\n" +
-                                    "  |           |                       |\n" +
-                                    "4 | .   .   . | .   .   .   .   .   . |\n" +
-                                    "  |            -------                |\n" +
-                                    "3 | .   .   .   .   . | .   .   .   . |\n" +
-                                    "  |                   |               |\n" +
-                                    "2 | .   .   .   .   . | .   .   .   . |\n" +
-                                    "  |                                   |\n" +
-                                    "1 | .   .   .   .   .   .   .   .   . |\n" +
-                                    "--|-----------------------------------\n" +
-                                    "  | 1   2   3   4   5   6   7   8   9\n")
+                                   "   -----------------------------------\n" +
+                                   "9 | .   .   .   .   .   .   .   .   . |\n" +
+                                   "  |                                   |\n" +
+                                   "8 | .   .   .   .   .   . | .   .   . |\n" +
+                                   "  |        ------- -------|-------    |\n" +
+                                   "7 | .   .   .   .   2   . | .   .   . |\n" +
+                                   "  |                                   |\n" +
+                                   "6 | . | .   .   .   1   . | .   .   . |\n" +
+                                   "  |   |-------            |           |\n" +
+                                   "5 | . | .   . | .   .   . | .   .   . |\n" +
+                                   "  |           |                       |\n" +
+                                   "4 | .   .   . | .   .   .   .   .   . |\n" +
+                                   "  |            -------                |\n" +
+                                   "3 | .   .   .   .   . | .   .   .   . |\n" +
+                                   "  |                   |               |\n" +
+                                   "2 | .   .   .   .   . | .   .   .   . |\n" +
+                                   "  |                                   |\n" +
+                                   "1 | .   .   .   .   .   .   .   .   . |\n" +
+                                   "--|-----------------------------------\n" +
+                                   "  | 1   2   3   4   5   6   7   8   9\n")
         partie_existante_etat = {
             "joueurs": [
                 {"nom": "foo", "murs": 7, "pos": [5, 6]},
