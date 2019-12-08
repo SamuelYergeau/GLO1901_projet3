@@ -2,3 +2,4 @@
 *.txt
 *.vsdx
 __pycache__/
+.vscode/launch.json
