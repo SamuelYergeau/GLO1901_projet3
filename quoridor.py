@@ -535,12 +535,12 @@ class Quoridor:
         # varier le choix en fonction du nombre de murs qu'il reste à placer
         # compager si le chemin le plus rapide de l'adversaire est plus cours que celui du joueur
         if ((dice == [True]) or
-            (len(chemin2) < len(chemin1) <= 3) or
-            len(chemin2) < (len(chemin1) - 2)):
+                (len(chemin2) < len(chemin1) <= 3) or
+                len(chemin2) < (len(chemin1) - 2)):
             result = self.auto_placer_mur(joueur, chemin1, chemin2, 1)
             if result:
                 return result
-    
+
         # Sinon, bouger le joueur selon le plus court chemin
         self.déplacer_jeton(joueur, chemin1[1])
         if self.mode == 'server':
@@ -643,7 +643,7 @@ class Quoridor:
                 (self.murh + [position]),
                 self.murv
             )
-            
+
             # vérifier si placer ce mur enfermerais un joueur
             for i in range(2):
                 if not nx.has_path(graphe, (tuple(self.joueurs[i]['pos'])), objectif[i]):
