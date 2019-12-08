@@ -1,14 +1,15 @@
 """quoridor.py
 Module pour contenir la classe QuoridorX
 """
-import quoridor
 import tkinter as tk
 import copy
-import api
 from tkinter import messagebox as mb
+import quoridor
+import api
 
 
 class QuoridorX(quoridor.Quoridor):
+    '''class quoridorX pour implanter le mode graphique, herite de quoridor'''
 
     def __init__(self, joueurs, murs=None):
         """initialisation de l'affichage du jeu
@@ -42,7 +43,7 @@ class QuoridorX(quoridor.Quoridor):
             tk.Label(self.root,
                      text=str(10-r)).grid(row=(3 + ((r - 1) * 2)),
                                           column=1)
-        
+
         # Make column labels
         for r in range(1, 10):
             tk.Label(self.root,
@@ -104,7 +105,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightthickness=self.highlightthickness,
                                      background='#ffcc99',
                                      text=str(numero + 1))
-                        l.grid(row=j, column =i)
+                        l.grid(row=j, column=i)
                         l.extra = joueur['pos']
                         l.bind("<Button-1>", self.bouger_joueur)
                         l.bind("<Enter>", self.hilight)
@@ -124,7 +125,7 @@ class QuoridorX(quoridor.Quoridor):
                                          activebackground='#f9f9eb',
                                          background='#f9f9eb',
                                          text='')
-                            l.grid(row=j, column =i)
+                            l.grid(row=j, column=i)
                             l.extra = (game_pos_x.index(i),
                                        game_pos_y.index(j))
                             l.bind("<Button-1>", self.bouger_joueur)
@@ -156,7 +157,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightcolor='blue',
                                      highlightthickness=self.highlightthickness,
                                      background='grey',
-                                     text='').grid(row=j, column =(i + 1))
+                                     text='').grid(row=j, column=(i + 1))
                             break
                         # décallage: x + 1
                         elif (game_pos_x[(wallh[0] + 1)], game_pos_y[wallh[1]]) == (i, (j - 1)):
@@ -169,7 +170,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightcolor='blue',
                                      highlightthickness=self.highlightthickness,
                                      background='grey',
-                                     text='').grid(row=j, column =i)
+                                     text='').grid(row=j, column=i)
                             break
                         else:
                             if (i in game_pos_x) and (j in game_pos_mur):
@@ -185,7 +186,7 @@ class QuoridorX(quoridor.Quoridor):
                                              activebackground='brown',
                                              highlightthickness=self.highlightthickness,
                                              text='')
-                                l.grid(row=j, column =i)
+                                l.grid(row=j, column=i)
                                 l.extra = (game_pos_x.index(i),
                                            game_pos_y.index(j - 1))
                                 l.bind("<Button-1>", self.placer_murh)
@@ -205,7 +206,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightthickness=self.highlightthickness,
                                      background='brown',
                                      text='')
-                        l.grid(row=j, column =i)
+                        l.grid(row=j, column=i)
                         l.extra = (game_pos_x.index(i),
                                    game_pos_y.index(j - 1))
                         l.bind("<Button-1>", self.placer_murh)
@@ -224,7 +225,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightcolor='blue',
                                      highlightthickness=self.highlightthickness,
                                      background='grey',
-                                     text='').grid(row=j, column =i)
+                                     text='').grid(row=j, column=i)
                             # remplissage de la case vide
                             tk.Label(self.board,
                                      width=1,
@@ -235,7 +236,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightcolor='blue',
                                      highlightthickness=self.highlightthickness,
                                      background='grey',
-                                     text='').grid(row=(j - 1), column =i)
+                                     text='').grid(row=(j - 1), column=i)
                             break
                         # décallage: y + 1
                         elif (game_pos_x[wallv[0]], game_pos_y[(wallv[1] + 1)]) == ((i + 1), j):
@@ -248,7 +249,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightcolor='blue',
                                      highlightthickness=self.highlightthickness,
                                      background='grey',
-                                     text='').grid(row=j, column =i)
+                                     text='').grid(row=j, column=i)
                             break
                         else:
                             if (i in game_pos_mur) and (j in game_pos_y):
@@ -264,7 +265,7 @@ class QuoridorX(quoridor.Quoridor):
                                              highlightthickness=self.highlightthickness,
                                              background='brown',
                                              text=' ')
-                                l.grid(row=j, column =i)
+                                l.grid(row=j, column=i)
                                 l.extra = (game_pos_x.index(i + 1),
                                            game_pos_y.index(j))
                                 l.bind("<Button-1>", self.placer_murv)
@@ -284,7 +285,7 @@ class QuoridorX(quoridor.Quoridor):
                                      highlightthickness=self.highlightthickness,
                                      background='brown',
                                      text='')
-                        l.grid(row=j, column =i)
+                        l.grid(row=j, column=i)
                         l.extra = (game_pos_x.index(i + 1),
                                    game_pos_y.index(j))
                         l.bind("<Button-1>", self.placer_murv)
@@ -321,7 +322,7 @@ class QuoridorX(quoridor.Quoridor):
         if self.automode == True:
             self.root.after(75, self.auto_play)
 
-    
+
     def afficher(self):
         """met à jours l'affichage
         """
@@ -373,7 +374,7 @@ class QuoridorX(quoridor.Quoridor):
                 l.bind("<Button-1>", self.bouger_joueur)
                 l.bind("<Enter>", self.hilight)
                 l.bind("<Leave>", self.unhilight)
-        
+
         # Vérifier si des murs horizontaux ont été placés
         if self.nombremurh < len(self.murh):
             for i in range(2):
@@ -401,7 +402,7 @@ class QuoridorX(quoridor.Quoridor):
                      text='').grid(row=(game_pos_y[self.murh[-1][1]] + 1),
                                    column=(game_pos_x[self.murh[-1][0]] + 1))
             self.nombremurh = len(self.murh)
-        
+
         # Vérifier si des murs verticaux ont été placés
         if self.nombremurv < len(self.murv):
             for i in range(2):
@@ -463,7 +464,7 @@ class QuoridorX(quoridor.Quoridor):
             raise StopIteration("partie terminée")
 
 
-    def bouger_joueur(self,event):
+    def bouger_joueur(self, event):
         """handler pour l'event levée l'orsqu'on clique sur une
         case de déplacement de joueur
         Arguments:
@@ -551,7 +552,7 @@ class QuoridorX(quoridor.Quoridor):
         if self.automode == False:
             event.widget['bg'] = event.widget['activeforeground']
 
-    
+
     def unhilight(self, event):
         """Handler pour dé-hilighter une case
         l'orsque la sourie passe dessus
