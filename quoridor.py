@@ -369,6 +369,8 @@ class Quoridor:
             position (tuple):
                 Le tuple (x, y) de la position où déplacer le jeton
         Return: None
+        TODO: régler le bug où il m'interdit de bouger quand je suis collé à un mur horizontal
+
         """
         # Vérifier que le joueur est valide
         if joueur not in (1, 2):
@@ -383,7 +385,7 @@ class Quoridor:
             self.murv
         )
         # vérifier si le mouvement est valide
-        if position not in list(graphe.successors((self.joueurs[(joueur - 1)]['pos']))):
+        if position not in list(graphe.successors(tuple(self.joueurs[(joueur - 1)]['pos']))):
             raise QuoridorError("mouvement invalide!")
         # Changer la position du joueur
         self.joueurs[(joueur - 1)]['pos'] = position
@@ -472,24 +474,21 @@ class Quoridor:
                                                      objectifs[(adversaire - 1)])
                             # comparer les nouveau chemins à ceux de départ
                             if len(chem2) > len(chemin2) and len(chem1) <= len(chemin1):
-                                if self.mode == 'local':
-                                    self.placer_mur(joueur, pos, sens)
-                                    return True
-                                elif self.mode == 'server':
+                                self.placer_mur(joueur, pos, sens)
+                                if self.mode == 'server':
                                     if sens == 'horizontal':
                                         return api.jouer_coup(self.gameid, 'MH', pos)
                                     else:
                                         return api.jouer_coup(self.gameid, 'MV', pos)
                                 else:
-                                    raise QuoridorError("mauvais mode de jeu!")
+                                    return True
                         # Si le mur ne peut pas être placé, essayer le prochain
                         except nx.exception.NetworkXError:
                             continue
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except (QuoridorError,
                 nx.exception.NetworkXError,
-                nx.exception.NetworkXNoPath,
-                RuntimeError):
+                nx.exception.NetworkXNoPath):
             return self.auto_placer_mur(joueur,
                                         chemin1[attempts:],
                                         chemin2[attempts:],
@@ -543,12 +542,9 @@ class Quoridor:
                 return result
     
         # Sinon, bouger le joueur selon le plus court chemin
-        if self.mode == 'local':
-            self.déplacer_jeton(joueur, chemin1[1])
-        elif self.mode == 'server':
+        self.déplacer_jeton(joueur, chemin1[1])
+        if self.mode == 'server':
             return api.jouer_coup(self.gameid, 'D', chemin1[1])
-        else:
-            raise QuoridorError("wrong mode!")
 
 
     def partie_terminée(self):
@@ -569,18 +565,50 @@ class Quoridor:
         return False
 
 
-    def check_position(self, position):
+    def check_positionh(self, position):
         """simple fonction pour alléger le nombre
         de branches dans placer_mur
         """
         # vérifier si les positions sont dans les limites du jeu
         if not 1 <= position[0] <= 8 or not 2 <= position[1] <= 9:
             raise QuoridorError("position du mur invalide!")
-        # vérifier si l'emplacement est déjà occupé
+        # vérifier si l'emplacement est déjà occupé par un mur horizontal
         if (position[0], position[1]) in self.murh:
             raise QuoridorError("Il y a déjà un mur!")
-        # Prendre en compte le décalage des murs
+        if [position[0], position[1]] in self.murh:
+            raise QuoridorError("Il y a déjà un mur!")
+        # Prendre en compte le décalage des murs horizontaux
         if ((position[0] - 1), position[1]) in self.murh:
+            raise QuoridorError("Il y a déjà un mur!")
+        if [(position[0] - 1), position[1]] in self.murh:
+            raise QuoridorError("Il y a déjà un mur!")
+        # vérifier si l'emplacement est déjà occupé par un mur vertical
+        if ((position[0] + 1), (position[1] - 1)) in self.murv:
+            raise QuoridorError("Il y a déjà un mur!")
+        if [(position[0] + 1), (position[1] - 1)] in self.murv:
+            raise QuoridorError("Il y a déjà un mur!")
+
+    
+    def check_positionv(self, position):
+        """Simple fonction pour alléger le nombre de
+        branches dans placer_mur
+        """
+        if not 2 <= position[0] <= 9 or not 1 <= position[1] <= 8:
+            raise QuoridorError("position du mur invalide!")
+        # vérifier si l'emplacement est déjà occupé
+        if (position[0], position[1]) in self.murv:
+            raise QuoridorError("Il y a déjà un mur!")
+        if [position[0], position[1]] in self.murv:
+            raise QuoridorError("Il y a déjà un mur!")
+        # Prendre en compte le décalage des murs
+        if (position[0], (position[1] - 1)) in self.murv:
+            raise QuoridorError("Il y a déjà un mur!")
+        if [position[0], (position[1] - 1)] in self.murv:
+            raise QuoridorError("Il y a déjà un mur!")
+        # Vérifier si l'enplacement est déjà occupé par un mur horizontal
+        if ((position[0] - 1), (position[1] + 1)) in self.murh:
+            raise QuoridorError("Il y a déjà un mur!")
+        if [(position[0] - 1), (position[1] + 1)] in self.murh:
             raise QuoridorError("Il y a déjà un mur!")
 
 
@@ -593,6 +621,7 @@ class Quoridor:
             position {tuple} -- le tuple (x, y) de la position du mur
             orientation {str} -- l'orientation du mur: 'horizontal' ou 'vertical'
         Return: None
+        TODO: vérifier que les verticaux et horizontaux ne se touchent pas
         """
         # définir les objectifs de chaque joueurs
         objectif = ['B1', 'B2']
@@ -607,7 +636,7 @@ class Quoridor:
             raise QuoridorError("position invalide!")
         # Si le mur est horizontal
         if orientation == 'horizontal':
-            self.check_position(position)
+            self.check_positionh(position)
             # créer un graphe des mouvements possible à jouer avec le mur ajouté
             graphe = construire_graphe(
                 [joueur['pos'] for joueur in self.joueurs],
@@ -617,7 +646,7 @@ class Quoridor:
             
             # vérifier si placer ce mur enfermerais un joueur
             for i in range(2):
-                if not nx.has_path(graphe, (self.joueurs[i]['pos']), objectif[i]):
+                if not nx.has_path(graphe, (tuple(self.joueurs[i]['pos'])), objectif[i]):
                     raise QuoridorError("ce coup enfermerait un joueur")
             # placer le mur
             self.murh += [position]
@@ -625,15 +654,7 @@ class Quoridor:
             self.joueurs[(joueur - 1)]['murs'] -= 1
         # Si c'est un mur vertical
         elif orientation == 'vertical':
-            # vérifier si les positions sont dans les limites du jeu
-            if not 2 <= position[0] <= 9 or not 1 <= position[1] <= 8:
-                raise QuoridorError("position du mur invalide!")
-            # vérifier si l'emplacement est déjà occupé
-            if (position[0], position[1]) in self.murv:
-                raise QuoridorError("Il y a déjà un mur!")
-            # Prendre en compte le décalage des murs
-            if (position[0], (position[1] - 1)) in self.murv:
-                raise QuoridorError("Il y a déjà un mur!")
+            self.check_positionv(position)
             # créer un graphe des mouvements possible à jouer avec le mur ajouté
             graphe = construire_graphe(
                 [joueur['pos'] for joueur in self.joueurs],
@@ -642,7 +663,7 @@ class Quoridor:
             )
             # vérifier si placer ce mur enfermerais le joueur
             for i in range(2):
-                if not nx.has_path(graphe, (self.joueurs[i]['pos']), objectif[i]):
+                if not nx.has_path(graphe, (tuple(self.joueurs[i]['pos'])), objectif[i]):
                     raise QuoridorError("ce coup enfermerait un joueur")
             # placer le mur
             self.murv += [position]

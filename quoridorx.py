@@ -3,6 +3,7 @@ Module pour contenir la classe QuoridorX
 """
 import quoridor
 import tkinter as tk
+import networkx as nx
 import copy
 import api
 from tkinter import messagebox as mb
@@ -469,22 +470,27 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget cliqué
         """
-        if self.mode == 'local':
-            self.déplacer_jeton(self.playerturn, event.widget.extra)
-        else:
-            try:
-                nouveaujeu = api.jouer_coup(self.gameid,
-                                            'D',
-                                            event.widget.extra)
-                self.joueurs = nouveaujeu['joueurs']
-                self.murh = nouveaujeu['murs']['horizontaux']
-                self.murv = nouveaujeu['murs']['verticaux']
-            except RuntimeError as r:
-                mb.showerror("Erreur!", r)
-            except StopIteration as s:
-                mb.showinfo("La partie est terminée!",
-                            "le joueur {} à gagné!".format(s))
-                return
+        try:
+            if self.mode == 'server':
+                self.playerturn = 1
+            self.déplacer_jeton(self.playerturn,
+                                event.widget.extra)
+            if self.mode == 'server':
+                try:
+                    nouveaujeu = api.jouer_coup(self.gameid,
+                                                'D',
+                                                event.widget.extra)
+                    self.joueurs = nouveaujeu['joueurs']
+                    self.murh = nouveaujeu['murs']['horizontaux']
+                    self.murv = nouveaujeu['murs']['verticaux']
+                except StopIteration as s:
+                    mb.showinfo("La partie est terminée!",
+                                "le joueur {} à gagné!".format(s))
+                    return
+        except (quoridor.QuoridorError,
+                nx.exception.NetworkXError,
+                nx.exception.NetworkXNoPath) as er:
+            mb.showerror("Erreur!", er)
         self.afficher()
 
 
@@ -494,24 +500,28 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget cliqué
         """
-        if self.mode == 'local':
+        try:
+            if self.mode == 'server':
+                self.playerturn = 1
             self.placer_mur(self.playerturn,
                             event.widget.extra,
                             'horizontal')
-        else:
-            try:
-                nouveaujeu = api.jouer_coup(self.gameid,
-                                            'MH',
-                                            event.widget.extra)
-                self.joueurs = nouveaujeu['joueurs']
-                self.murh = nouveaujeu['murs']['horizontaux']
-                self.murv = nouveaujeu['murs']['verticaux']
-            except RuntimeError as r:
-                mb.showerror("Erreur!", r)
-            except StopIteration as s:
-                mb.showinfo("La partie est terminée!",
-                            "le joueur {} à gagné!".format(s))
-                return
+            if self.mode == 'server':
+                try:
+                    nouveaujeu = api.jouer_coup(self.gameid,
+                                                'MH',
+                                                event.widget.extra)
+                    self.joueurs = nouveaujeu['joueurs']
+                    self.murh = nouveaujeu['murs']['horizontaux']
+                    self.murv = nouveaujeu['murs']['verticaux']
+                except StopIteration as s:
+                    mb.showinfo("La partie est terminée!",
+                                "le joueur {} à gagné!".format(s))
+                    return
+        except (quoridor.QuoridorError,
+                nx.exception.NetworkXError,
+                nx.exception.NetworkXNoPath) as er:
+            mb.showerror("Erreur!", er)
         self.afficher()
 
 
@@ -521,24 +531,28 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget cliqué
         """
-        if self.mode == 'local':
+        try:
+            if self.mode == 'server':
+                self.playerturn = 1
             self.placer_mur(self.playerturn,
                             event.widget.extra,
                             'vertical')
-        else:
-            try:
-                nouveaujeu = api.jouer_coup(self.gameid,
-                                            'MV',
-                                            event.widget.extra)
-                self.joueurs = nouveaujeu['joueurs']
-                self.murh = nouveaujeu['murs']['horizontaux']
-                self.murv = nouveaujeu['murs']['verticaux']
-            except RuntimeError as r:
-                mb.showerror("Erreur!", r)
-            except StopIteration as s:
-                mb.showinfo("La partie est terminée!",
-                            "le joueur {} à gagné!".format(s))
-                return
+            if self.mode == 'server':
+                try:
+                    nouveaujeu = api.jouer_coup(self.gameid,
+                                                'MV',
+                                                event.widget.extra)
+                    self.joueurs = nouveaujeu['joueurs']
+                    self.murh = nouveaujeu['murs']['horizontaux']
+                    self.murv = nouveaujeu['murs']['verticaux']
+                except StopIteration as s:
+                    mb.showinfo("La partie est terminée!",
+                                "le joueur {} à gagné!".format(s))
+                    return
+        except (quoridor.QuoridorError,
+                nx.exception.NetworkXError,
+                nx.exception.NetworkXNoPath) as er:
+            mb.showerror("Erreur!", er)
         self.afficher()
 
 

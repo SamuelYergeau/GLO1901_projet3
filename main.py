@@ -140,15 +140,24 @@ def jeu_manuel_serveur(idul):
         coup = prompt_player()
         # jouer le coup
         try:
+            # vérifier que le coup est légal
+            if coup[0] == 'D':
+                jeu.déplacer_jeton(1, (int(coup[1]), int(coup[2])))
+            elif coup[0] == 'MH':
+                jeu.placer_mur(1, (int(coup[1]), int(coup[2])), 'horizontal')
+            elif coup[0] == 'MV':
+                jeu.placer_mur(1, (int(coup[1]), int(coup[2])), 'vertical')
+            else:
+                print("coup invalide!")
+                continue
             nouveaujeu = api.jouer_coup(gameid, coup[0], (coup[1], coup[2]))
-            jeu = quoridor.Quoridor(nouveaujeu['joueurs'], nouveaujeu['murs'])
+            jeu.joueurs = nouveaujeu['joueurs']
+            jeu.murh = nouveaujeu['murs']['horizontaux']
+            jeu.murv = nouveaujeu['murs']['verticaux']
             print(jeu)
-        except quoridor.QuoridorError:
-            #jeu = quoridor.Quoridor(nouveaujeu['joueurs'])
+        except quoridor.QuoridorError as q:
+            print("coup invalide!:", q)
             print(jeu)
-        except RuntimeError as r:
-            print("\nERREUR!: ", r, '\n')
-            continue
         except StopIteration as s:
             # prévenir le joueur que la partie est terminée
             print('\n' + '~' * 39)
