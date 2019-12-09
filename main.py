@@ -48,24 +48,14 @@ def analyser_commande():
         description="Jeu Quoridor - phase 1"
     )
     # indiquer au joueur d'entrer son nom
-    parser.add_argument('-l', '--lister',
-                        dest='lister',
-                        action='store_true',
-                        help="Lister les identifiants de vos 20 dernières parties.")
-    parser.add_argument('-a',
+    parser.add_argument('-a', '--automatique',
                         dest='auto',
                         action='store_true',
-                        help="Jouer en mode automatique contre le serveur avec le nom idul")
-    parser.add_argument('-x',
+                        help="Activer le mode automatique.")
+    parser.add_argument('-x', '--graphique',
                         dest='graphique',
                         action='store_true',
-                        help="Jouer en mode manuel contre le serveur avec le nom idul, " +
-                        "mais avec un affichage dans une fenêtre graphique")
-    parser.add_argument('-ax',
-                        dest='autographique',
-                        action='store_true',
-                        help="Jouer en mode automatique contre le serveur avec le nom idul, " +
-                        "mais avec un affichage dans une fenêtre graphique")
+                        help="Activer le mode graphique.")
     parser.add_argument('idul',
                         default='nom_du_joueur',
                         help="IDUL du joueur.")
@@ -240,18 +230,13 @@ def repartition_options(options):
     Arguments:
         options {nameplace} -- liste des options dans lesquelles le jeu se déroulera
     """
-    # check if more than one option is true
-    if sum([options.auto, options.graphique, options.autographique, options.lister]) > 1:
-        raise ValueError("too many options chosen!")
     # sent every option to their respective function
-    if options.lister:
-        pass
+    if options.auto and options.graphique:
+        jeu_auto_graphique_serveur(options.idul)
     elif options.auto:
         jeu_auto_serveur(options.idul)
     elif options.graphique:
         jeu_manuel_graphique_serveur(options.idul)
-    elif options.autographique:
-        jeu_auto_graphique_serveur(options.idul)
     else:
         jeu_manuel_serveur(options.idul)
 
