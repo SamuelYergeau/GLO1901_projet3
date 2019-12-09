@@ -28,6 +28,7 @@ Contient les fonctions:
 '''
 import argparse
 import tkinter as tk
+import networkx as nx
 import api
 import quoridor
 import quoridorx
@@ -80,7 +81,6 @@ def listing(idul):
             le idul du joueur
     Return:
         une liste contenant les réponses du joueur
-        FIXME: l'affichage ne fonctionne plus
     '''
     gamelist = api.lister_parties(idul)
     print("voici la liste de vos 20 dernières parties jouées")
@@ -155,7 +155,9 @@ def jeu_manuel_serveur(idul):
             jeu.murh = nouveaujeu['murs']['horizontaux']
             jeu.murv = nouveaujeu['murs']['verticaux']
             print(jeu)
-        except quoridor.QuoridorError as q:
+        except (quoridor.QuoridorError,
+                nx.exception.NetworkXError,
+                nx.exception.NetworkXNoPath) as q:
             print("coup invalide!:", q)
             print(jeu)
         except StopIteration as s:
@@ -192,7 +194,6 @@ def jeu_auto_serveur(idul):
             jeu.murv = nouveaujeu['murs']['verticaux']
             print(jeu)
         except quoridor.QuoridorError:
-            #jeu.joueurs = nouveaujeu['joueurs']
             print(jeu)
         except StopIteration as si:
             print('gagnant: ', si)

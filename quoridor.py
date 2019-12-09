@@ -369,7 +369,6 @@ class Quoridor:
             position (tuple):
                 Le tuple (x, y) de la position où déplacer le jeton
         Return: None
-        TODO: régler le bug où il m'interdit de bouger quand je suis collé à un mur horizontal
 
         """
         # Vérifier que le joueur est valide
@@ -385,7 +384,7 @@ class Quoridor:
             self.murv
         )
         # vérifier si le mouvement est valide
-        if position not in list(graphe.successors(tuple(self.joueurs[(joueur - 1)]['pos']))):
+        if tuple(position) not in list(graphe.successors(tuple(self.joueurs[(joueur - 1)]['pos']))):
             raise QuoridorError("mouvement invalide!")
         # Changer la position du joueur
         self.joueurs[(joueur - 1)]['pos'] = position
@@ -621,7 +620,6 @@ class Quoridor:
             position {tuple} -- le tuple (x, y) de la position du mur
             orientation {str} -- l'orientation du mur: 'horizontal' ou 'vertical'
         Return: None
-        TODO: vérifier que les verticaux et horizontaux ne se touchent pas
         """
         # définir les objectifs de chaque joueurs
         objectif = ['B1', 'B2']

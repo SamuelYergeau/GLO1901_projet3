@@ -476,6 +476,7 @@ class QuoridorX(quoridor.Quoridor):
                 self.playerturn = 1
             self.déplacer_jeton(self.playerturn,
                                 event.widget.extra)
+            self.afficher()
             if self.mode == 'server':
                 try:
                     nouveaujeu = api.jouer_coup(self.gameid,
@@ -507,6 +508,7 @@ class QuoridorX(quoridor.Quoridor):
             self.placer_mur(self.playerturn,
                             event.widget.extra,
                             'horizontal')
+            self.afficher()
             if self.mode == 'server':
                 try:
                     nouveaujeu = api.jouer_coup(self.gameid,
@@ -538,6 +540,7 @@ class QuoridorX(quoridor.Quoridor):
             self.placer_mur(self.playerturn,
                             event.widget.extra,
                             'vertical')
+            self.afficher()
             if self.mode == 'server':
                 try:
                     nouveaujeu = api.jouer_coup(self.gameid,
