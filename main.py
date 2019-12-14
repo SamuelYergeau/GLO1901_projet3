@@ -27,11 +27,13 @@ Contient les fonctions:
         - terminer le jeu
 '''
 import argparse
+import copy
 import tkinter as tk
 import networkx as nx
 import api
 import quoridor
 import quoridorx
+from tkinter import messagebox as mb
 
 
 def analyser_commande():
@@ -83,6 +85,31 @@ def listing(idul):
         print(jeu)
 
 
+def verifier_validite(jeu, coup):
+    """fonction pour vérifier que les coups à jouer sont valides    
+    Arguments:
+        jeu {[type]} -- [description]
+        coup {[type]} -- [description]
+    """
+    try:
+        # vérifier que le coup est légal
+        if coup[0] == 'D':
+            jeu.déplacer_jeton(1, (int(coup[1]), int(coup[2])))
+        elif coup[0] == 'MH':
+            jeu.placer_mur(1, (int(coup[1]), int(coup[2])), 'horizontal')
+        elif coup[0] == 'MV':
+            jeu.placer_mur(1, (int(coup[1]), int(coup[2])), 'vertical')
+        else:
+            print("coup invalide!")
+            return False
+        return True
+    except (quoridor.QuoridorError,
+            nx.exception.NetworkXError,
+            nx.exception.NetworkXNoPath) as q:
+        print("coup invalide!:", q)
+        return False
+
+
 def prompt_player():
     '''def prompt_player()
     Description:
@@ -108,8 +135,16 @@ def prompt_player():
     return [couptype, coupposx, coupposy]
 
 
+def autocommande(jeu):
+    # faire une copie du jeu
+    tempjeu = copy.deepcopy(jeu)
+    try:
+        return tempjeu.jouer_coup(1)
+    except quoridor.QuoridorError as qe:
+        print("exception inatendue:", qe)
 
-def jeu_manuel_serveur(idul):
+
+def jeu_console_serveur(idul, automode=False):
     """mode de jeu permettant de jouer en mode manuel contre le serveur
     - Les commandes sont entrées via le terminal
     - L'affichage s'effectue via le terminal en art ascii
@@ -119,36 +154,26 @@ def jeu_manuel_serveur(idul):
     # débuter le jeu
     nouveaujeu = api.débuter_partie(idul)
     jeu = quoridor.Quoridor(nouveaujeu[1]['joueurs'])
-    gameid = nouveaujeu[0]
-    jeu.set_mode('server')
-    jeu.set_automode('False')
+    jeu.gameid = nouveaujeu[0]
     # afficher le jeu
     print(jeu)
     # boucler
     while True:
-        # demander au joueur son prochain coup
-        coup = prompt_player()
+        # jouer manuellement ou demander au AI de le coup a joue
+        if automode:
+            coup = autocommande(jeu)
+        else:
+            coup = prompt_player()
         # jouer le coup
         try:
-            # vérifier que le coup est légal
-            if coup[0] == 'D':
-                jeu.déplacer_jeton(1, (int(coup[1]), int(coup[2])))
-            elif coup[0] == 'MH':
-                jeu.placer_mur(1, (int(coup[1]), int(coup[2])), 'horizontal')
-            elif coup[0] == 'MV':
-                jeu.placer_mur(1, (int(coup[1]), int(coup[2])), 'vertical')
-            else:
+            if not verifier_validite(jeu, coup):
                 print("coup invalide!")
+                print(jeu)
                 continue
-            nouveaujeu = api.jouer_coup(gameid, coup[0], (coup[1], coup[2]))
+            nouveaujeu = api.jouer_coup(jeu.gameid, coup[0], (coup[1], coup[2]))
             jeu.joueurs = nouveaujeu['joueurs']
             jeu.murh = nouveaujeu['murs']['horizontaux']
             jeu.murv = nouveaujeu['murs']['verticaux']
-            print(jeu)
-        except (quoridor.QuoridorError,
-                nx.exception.NetworkXError,
-                nx.exception.NetworkXNoPath) as q:
-            print("coup invalide!:", q)
             print(jeu)
         except StopIteration as s:
             # prévenir le joueur que la partie est terminée
@@ -159,69 +184,54 @@ def jeu_manuel_serveur(idul):
             return
 
 
-
-def jeu_auto_serveur(idul):
-    """jouer contre le serveur en mode automatique
-    - le jeu est géré par le AI
-    - l'affichage se fait dans le terminal
-    Arguments:
-        idul {str} -- L'identifiant du joueur
-    """
-    nouveaujeu = api.débuter_partie(idul)
-    jeu = quoridor.Quoridor(nouveaujeu[1]['joueurs'])
-    jeu.set_id(nouveaujeu[0])
-    jeu.set_mode('server')
-    jeu.set_automode('True')
-    # afficher le jeu
-    print(jeu)
-    # boucler
-    while True:
-        # obtenir le prochain coup
-        try:
-            nouveaujeu = jeu.jouer_coup(1)
-            jeu.joueurs = nouveaujeu['joueurs']
-            jeu.murh = nouveaujeu['murs']['horizontaux']
-            jeu.murv = nouveaujeu['murs']['verticaux']
-            print(jeu)
-        except quoridor.QuoridorError:
-            print(jeu)
-        except StopIteration as si:
-            print('gagnant: ', si)
-            return
+def check_task(jeu, task, automode=False):
+    if not automode:
+        # Vérifier si une nouvelle tâche a été entrée
+        if task != jeu.task:
+            return jeu.task
+    else:
+        murs = {'horizontaux':jeu.murh,
+                'verticaux':jeu.murv}
+        qjeu = quoridor.Quoridor(jeu.joueurs, murs)
+        return autocommande(qjeu)
 
 
-
-def jeu_manuel_graphique_serveur(idul):
+def jeu_graphique_serveur(idul, automode=False):
     """jeu manuel affiché dans un interface graphique
     - Les coups sont entrés dans l'interface graphique
     - L'affichage se fait dans l'interface graphique
     Arguments:
         idul {str} -- L'identifiant du joueur
     """
-    nouvellepartie = api.débuter_partie(idul)
-    game_id = nouvellepartie[0]
-    jeu = quoridorx.QuoridorX(nouvellepartie[1]['joueurs'])
-    # set le jeu pour jouer avec le serveur
-    jeu.set_mode('server')
-    jeu.set_id(game_id)
-    tk.mainloop()
-
-
-def jeu_auto_graphique_serveur(idul):
-    """jeu automatique affiché dans un interface graphique
-    - Les coup sont gérés par l'AI
-    - L'affichage se fait dans l'interface graphique
-    Arguments:
-        idul {str} -- L'identifiant du joueur
-    """
-    nouvellepartie = api.débuter_partie(idul)
-    game_id = nouvellepartie[0]
-    jeu = quoridorx.QuoridorX(nouvellepartie[1]['joueurs'])
-    # set le jeu pour jouer avec le serveur
-    jeu.set_mode('server')
-    jeu.set_id(game_id)
-    jeu.set_automode(True)
-    tk.mainloop()
+    # débuter le jeu
+    nouveaujeu = api.débuter_partie(idul)
+    jeu = quoridorx.QuoridorX(nouveaujeu[1]['joueurs'])
+    jeu.gameid = nouveaujeu[0]
+    coup = []
+    # boucler
+    while True:
+        # Obtenir le coup
+        t = check_task(jeu, coup, automode)
+        if t:
+            try:
+                coup = t
+                # vérifier si le coup est valide
+                if not verifier_validite(jeu, coup):
+                    mb.showerror("Erreur!", "Coup invalide!")
+                    continue
+                nouveaujeu = api.jouer_coup(jeu.gameid, coup[0], (coup[1], coup[2]))
+                jeu.joueurs = nouveaujeu['joueurs']
+                jeu.murh = nouveaujeu['murs']['horizontaux']
+                jeu.murv = nouveaujeu['murs']['verticaux']
+                # Afficher le jeu
+                jeu.afficher()
+            except StopIteration as s:
+                # prévenir le joueur que la partie est terminée
+                mb.showinfo("Partie terminée!", f"Le joueur {s} à gagné!")
+                return
+        # Boucler et continuellement afficher
+        jeu.root.update_idletasks()
+        jeu.root.update()
 
 
 def repartition_options(options):
@@ -232,13 +242,13 @@ def repartition_options(options):
     """
     # sent every option to their respective function
     if options.auto and options.graphique:
-        jeu_auto_graphique_serveur(options.idul)
+        jeu_graphique_serveur(options.idul, True)
     elif options.auto:
-        jeu_auto_serveur(options.idul)
+        jeu_console_serveur(options.idul, True)
     elif options.graphique:
-        jeu_manuel_graphique_serveur(options.idul)
+        jeu_graphique_serveur(options.idul)
     else:
-        jeu_manuel_serveur(options.idul)
+        jeu_console_serveur(options.idul)
 
 
 if __name__ == "__main__":

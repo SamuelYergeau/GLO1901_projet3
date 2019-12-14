@@ -6,7 +6,6 @@ import networkx as nx
 import copy
 from tkinter import messagebox as mb
 import quoridor
-import api
 
 
 class QuoridorX(quoridor.Quoridor):
@@ -29,8 +28,8 @@ class QuoridorX(quoridor.Quoridor):
         self.nombremurh = len(self.murh)
         self.nombremurv = len(self.murv)
         self.murholders = [0, 0]
-        self.playerturn = 1
         self.highlightthickness = 5
+        self.task = []
         # lists of equivalent positions
         game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
         game_pos_y = [0, 17, 15, 13, 11, 9, 7, 5, 3, 1]
@@ -293,37 +292,6 @@ class QuoridorX(quoridor.Quoridor):
                         l.bind("<Enter>", self.hilight)
                         l.bind("<Leave>", self.unhilight)
 
-
-    def set_automode(self, automode):
-        """Setter pour automode
-        Set automode à True et demarre le timer
-        Arguments:
-            automode {bool} -- automode state
-        """
-        self.automode = automode
-        if self.automode == True:
-            self.root.after(75, self.auto_play)
-
-
-    def auto_play(self):
-        """Handler pour jouer en mode automatique
-        """
-        try:
-            nouveaujeu = self.jouer_coup(1)
-            self.joueurs = nouveaujeu['joueurs']
-            self.murh = nouveaujeu['murs']['horizontaux']
-            self.murv = nouveaujeu['murs']['verticaux']
-            self.afficher()
-        except quoridor.QuoridorError:
-            self.afficher()
-        except StopIteration as si:
-            mb.showinfo("Fin de partie",
-                        "le joueur {} a gagné la partie!".format(si))
-            return
-        if self.automode == True:
-            self.root.after(75, self.auto_play)
-
-
     def afficher(self):
         """met à jours l'affichage
         """
@@ -442,28 +410,7 @@ class QuoridorX(quoridor.Quoridor):
                          background='white',
                          text='').grid(column=(joueur['murs'] + 2), row=1)
                 self.oldjoueurs[num]['murs'] = joueur['murs']
-        if self.playerturn == 1:
-            self.playerturn = 2
-        elif self.playerturn == 2:
-            self.playerturn = 1
-        else:
-            print("wrong player number")
         self.root.update()
-        self.verification_victoire()
-
-
-    def verification_victoire(self):
-        """vérifier si un joueur a gagné. si oui, fenetre popup
-        Raises:
-            StopIteration: termine le jeu
-        """
-        t = self.partie_terminée()
-        if t:
-            mb.showinfo("La partie est terminée!",
-                        "le joueur {} à gagné!".format(t))
-            self.root.destroy()
-            raise StopIteration("partie terminée")
-
 
     def bouger_joueur(self, event):
         """handler pour l'event levée l'orsqu'on clique sur une
@@ -471,30 +418,9 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget cliqué
         """
-        try:
-            if self.mode == 'server':
-                self.playerturn = 1
-            self.déplacer_jeton(self.playerturn,
-                                event.widget.extra)
-            self.afficher()
-            if self.mode == 'server':
-                try:
-                    nouveaujeu = api.jouer_coup(self.gameid,
-                                                'D',
-                                                event.widget.extra)
-                    self.joueurs = nouveaujeu['joueurs']
-                    self.murh = nouveaujeu['murs']['horizontaux']
-                    self.murv = nouveaujeu['murs']['verticaux']
-                except StopIteration as s:
-                    mb.showinfo("La partie est terminée!",
-                                "le joueur {} à gagné!".format(s))
-                    return
-        except (quoridor.QuoridorError,
-                nx.exception.NetworkXError,
-                nx.exception.NetworkXNoPath) as er:
-            mb.showerror("Erreur!", er)
-        self.afficher()
-
+        self.task = ['D',
+                     event.widget.extra[0],
+                     event.widget.extra[1]]
 
     def placer_murh(self, event):
         """Handler pour l'event levée l'orsqu'on clique sur une case
@@ -502,31 +428,9 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget cliqué
         """
-        try:
-            if self.mode == 'server':
-                self.playerturn = 1
-            self.placer_mur(self.playerturn,
-                            event.widget.extra,
-                            'horizontal')
-            self.afficher()
-            if self.mode == 'server':
-                try:
-                    nouveaujeu = api.jouer_coup(self.gameid,
-                                                'MH',
-                                                event.widget.extra)
-                    self.joueurs = nouveaujeu['joueurs']
-                    self.murh = nouveaujeu['murs']['horizontaux']
-                    self.murv = nouveaujeu['murs']['verticaux']
-                except StopIteration as s:
-                    mb.showinfo("La partie est terminée!",
-                                "le joueur {} à gagné!".format(s))
-                    return
-        except (quoridor.QuoridorError,
-                nx.exception.NetworkXError,
-                nx.exception.NetworkXNoPath) as er:
-            mb.showerror("Erreur!", er)
-        self.afficher()
-
+        self.task = ['MH',
+                     event.widget.extra[0],
+                     event.widget.extra[1]]
 
     def placer_murv(self, event):
         """Handler pour l'event levée l'orsqu'on clique sur une case
@@ -534,31 +438,9 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget cliqué
         """
-        try:
-            if self.mode == 'server':
-                self.playerturn = 1
-            self.placer_mur(self.playerturn,
-                            event.widget.extra,
-                            'vertical')
-            self.afficher()
-            if self.mode == 'server':
-                try:
-                    nouveaujeu = api.jouer_coup(self.gameid,
-                                                'MV',
-                                                event.widget.extra)
-                    self.joueurs = nouveaujeu['joueurs']
-                    self.murh = nouveaujeu['murs']['horizontaux']
-                    self.murv = nouveaujeu['murs']['verticaux']
-                except StopIteration as s:
-                    mb.showinfo("La partie est terminée!",
-                                "le joueur {} à gagné!".format(s))
-                    return
-        except (quoridor.QuoridorError,
-                nx.exception.NetworkXError,
-                nx.exception.NetworkXNoPath) as er:
-            mb.showerror("Erreur!", er)
-        self.afficher()
-
+        self.task = ['MV',
+                     event.widget.extra[0],
+                     event.widget.extra[1]]
 
     def hilight(self, event):
         """Handler pour hilighter une case
@@ -566,9 +448,7 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget ciblé
         """
-        if self.automode == False:
-            event.widget['bg'] = event.widget['activeforeground']
-
+        event.widget['bg'] = event.widget['activeforeground']
 
     def unhilight(self, event):
         """Handler pour dé-hilighter une case
@@ -576,10 +456,7 @@ class QuoridorX(quoridor.Quoridor):
         Arguments:
             event {event} -- le widget ciblé
         """
-        if self.automode == False:
-            event.widget['bg'] = event.widget['activebackground']
-
-
+        event.widget['bg'] = event.widget['activebackground']
 
 
 if __name__ == '__main__':
