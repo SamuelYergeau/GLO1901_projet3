@@ -48,55 +48,8 @@ class QuoridorX(quoridor.Quoridor):
         game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
         game_pos_y = [0, 17, 15, 13, 11, 9, 7, 5, 3, 1]
         game_pos_mur = [0, 2, 4, 6, 8, 10, 12, 14, 16]
-        # make row labels
-        for r in range(1, 10):
-            tk.Label(self.root,
-                     text=str(10-r)).grid(row=(3 + ((r - 1) * 2)),
-                                          column=1)
-
-        # Make column labels
-        for r in range(1, 10):
-            tk.Label(self.root,
-                     width=3,
-                     height=1,
-                     text=str(r)).grid(row=20,
-                                       column=(2 * r))
-
-        # Afficher les murs que chaque joueurs peuvent encore placer
-        for num, r in enumerate([23, 2]):
-            # Murs des 2 joueurs
-            tk.Label(self.root,
-                     text="Joueur {} = {}".format((num + 1), self.joueurs[num]['nom']),
-                     height=1).grid(column=10, row=(r - 1))
-            self.murholders[num] = tk.Frame(self.root,
-                                            background='grey',
-                                            borderwidth=2,
-                                            relief=tk.FLAT)
-            self.murholders[num].grid(column=2,
-                                      columnspan=17,
-                                      row=r,
-                                      rowspan=1,
-                                      sticky='n')
-            for jmurs in range(2, (self.joueurs[(num)]['murs'] + 2)):
-                tk.Label(self.murholders[num],
-                         width=1,
-                         height=3,
-                         borderwidth=3,
-                         relief=tk.RIDGE,
-                         padx=5,
-                         background='grey',
-                         text='').grid(column=jmurs, row=1)
-
-        # Construction du tableau de jeu
-        self.board = tk.Frame(self.root,
-                              background='brown',
-                              borderwidth=2,
-                              relief=tk.RIDGE)
-        self.board.grid(column=2,
-                        columnspan=17,
-                        row=3,
-                        rowspan=17,
-                        sticky='n')
+        # Créer la table de jeu
+        self.make_board()
         # dresser la table de jeu
         for i, j in itertools.product(range(1, 18), range(1, 18)):
             # Cases de jeu principales
@@ -246,6 +199,58 @@ class QuoridorX(quoridor.Quoridor):
                 self.oldjoueurs[num]['murs'] = joueur['murs']
         self.root.update()
 
+    def make_board(self):
+        """Handler pour construire le tableau autour du jeu
+        """
+        # Make row labels
+        for r in range(1, 10):
+            tk.Label(self.root,
+                     text=str(10-r)).grid(row=(3 + ((r - 1) * 2)),
+                                          column=1)
+
+        # Make column labels
+        for r in range(1, 10):
+            tk.Label(self.root,
+                     width=3,
+                     height=1,
+                     text=str(r)).grid(row=20,
+                                       column=(2 * r))
+
+        # Afficher les murs que chaque joueurs peuvent encore placer
+        for num, r in enumerate([23, 2]):
+            # Murs des 2 joueurs
+            tk.Label(self.root,
+                     text="Joueur {} = {}".format((num + 1), self.joueurs[num]['nom']),
+                     height=1).grid(column=10, row=(r - 1))
+            self.murholders[num] = tk.Frame(self.root,
+                                            background='grey',
+                                            borderwidth=2,
+                                            relief=tk.FLAT)
+            self.murholders[num].grid(column=2,
+                                      columnspan=17,
+                                      row=r,
+                                      rowspan=1,
+                                      sticky='n')
+            for jmurs in range(2, (self.joueurs[(num)]['murs'] + 2)):
+                tk.Label(self.murholders[num],
+                         width=1,
+                         height=3,
+                         borderwidth=3,
+                         relief=tk.RIDGE,
+                         padx=5,
+                         background='grey',
+                         text='').grid(column=jmurs, row=1)
+        # Construction du tableau de jeu
+        self.board = tk.Frame(self.root,
+                              background='brown',
+                              borderwidth=2,
+                              relief=tk.RIDGE)
+        self.board.grid(column=2,
+                        columnspan=17,
+                        row=3,
+                        rowspan=17,
+                        sticky='n')
+    
     def make_cases(self, i, j, fr, ba, t='', extr=None):
         """Handler pour créer les cases principales du jeu
         Arguments:

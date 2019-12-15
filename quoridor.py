@@ -8,6 +8,7 @@ contient les classes:
 import unittest
 import copy
 import random
+import itertools
 import networkx as nx
 
 
@@ -358,7 +359,7 @@ class Quoridor:
                     "verticaux": self.murv
                     }}
 
-    def switch_mur(self, chemin1, chemin2, joueur, pos, sens):
+    def switch_mur(self, joueur, pos, sens):
         """Simple fonction pour alléger auto_placer_mur
         Vérifie que le coup peut être joué et agence les datas dans la réponse
         Returns:
@@ -395,42 +396,40 @@ class Quoridor:
             if adversaire == joueur:
                 adversaire = 2
             # Itérer le long du chemin le plus court de l'adversaire
-            for c in chemin2[1:-1]:
-                # itérer sur les 2 sens possibles de murs
-                for sens in ['horizontal', 'vertical']:
-                    # Itérer sur les 4 positions possibles où placer un mur
-                    for pos in [((c[0] - 1), c[1]),
-                                ((c[0] + 1), (c[1])),
-                                (c[0], (c[1] - 1)),
-                                (c[0], (c[1] + 1))]:
-                        try:
-                            # Dresser un tableau avec le mur ajoué
-                            graphe = ''
-                            if sens == 'horizontal':
-                                graphe = construire_graphe([joueur['pos'] for
-                                                                 joueur in self.joueurs],
-                                                                (self.murh + [pos]),
-                                                                self.murv
-                                                                )
-                            else:
-                                graphe = construire_graphe([joueur['pos'] for
-                                                                 joueur in self.joueurs],
-                                                                self.murh,
-                                                                (self.murv + [pos])
-                                                                )
-                            # dresser les chemin avec le nouveau tableau
-                            chem1 = nx.shortest_path(graphe,
-                                                     tuple(self.joueurs[(joueur - 1)]['pos']),
-                                                     objectifs[(joueur - 1)])
-                            chem2 = nx.shortest_path(graphe,
-                                                     tuple(self.joueurs[(adversaire - 1)]['pos']),
-                                                     objectifs[(adversaire - 1)])
-                            # comparer les nouveau chemins à ceux de départ
-                            if len(chem2) > len(chemin2) and len(chem1) <= len(chemin1):
-                                return self.switch_mur(chemin1, chemin2, joueur, pos, sens)
-                        # Si le mur ne peut pas être placé, essayer le prochain
-                        except nx.exception.NetworkXError:
-                            continue
+            for c, sens in itertools.product(chemin2[1:-1], ['horizontal', 'vertical']):
+                # Itérer sur les 4 positions possibles où placer un mur
+                for pos in [((c[0] - 1), c[1]),
+                            ((c[0] + 1), (c[1])),
+                            (c[0], (c[1] - 1)),
+                            (c[0], (c[1] + 1))]:
+                    try:
+                        # Dresser un tableau avec le mur ajoué
+                        graphe = ''
+                        if sens == 'horizontal':
+                            graphe = construire_graphe([joueur['pos'] for
+                                                        joueur in self.joueurs],
+                                                       (self.murh + [pos]),
+                                                       self.murv
+                                                      )
+                        else:
+                            graphe = construire_graphe([joueur['pos'] for
+                                                        joueur in self.joueurs],
+                                                       self.murh,
+                                                       (self.murv + [pos])
+                                                      )
+                        # dresser les chemin avec le nouveau tableau
+                        chem1 = nx.shortest_path(graphe,
+                                                 tuple(self.joueurs[(joueur - 1)]['pos']),
+                                                 objectifs[(joueur - 1)])
+                        chem2 = nx.shortest_path(graphe,
+                                                 tuple(self.joueurs[(adversaire - 1)]['pos']),
+                                                 objectifs[(adversaire - 1)])
+                        # comparer les nouveau chemins à ceux de départ
+                        if len(chem2) > len(chemin2) and len(chem1) <= len(chemin1):
+                            return self.switch_mur(joueur, pos, sens)
+                    # Si le mur ne peut pas être placé, essayer le prochain
+                    except nx.exception.NetworkXError:
+                        continue
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except (QuoridorError,
                 nx.exception.NetworkXError,
