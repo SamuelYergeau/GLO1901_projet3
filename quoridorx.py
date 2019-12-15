@@ -28,16 +28,11 @@ class QuoridorX(quoridor.Quoridor):
         self.nombremurh = len(self.murh)
         self.nombremurv = len(self.murv)
         self.murholders = [0, 0]
-        self.highlightthickness = 5
         self.task = []
         # lists of equivalent positions
         game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
         game_pos_y = [0, 17, 15, 13, 11, 9, 7, 5, 3, 1]
         game_pos_mur = [0, 2, 4, 6, 8, 10, 12, 14, 16]
-        # sizes of the different labels [height, width]
-        case_jeu_dimensions = [3, 3]
-        mur_h_dimensions = [3, 1]
-        mur_v_dimensions = [1, 3]
         # make row labels
         for r in range(1, 10):
             tk.Label(self.root,
@@ -69,8 +64,8 @@ class QuoridorX(quoridor.Quoridor):
                                       sticky='n')
             for jmurs in range(2, (self.joueurs[(num)]['murs'] + 2)):
                 tk.Label(self.murholders[num],
-                         width=mur_v_dimensions[0],
-                         height=mur_v_dimensions[1],
+                         width=1,
+                         height=3,
                          borderwidth=3,
                          relief=tk.RIDGE,
                          padx=5,
@@ -92,61 +87,21 @@ class QuoridorX(quoridor.Quoridor):
             for j in range(1, 18):
                 # Cases de jeu principales
                 for numero, joueur in enumerate(self.joueurs):
+                    # Si un joueur est sur cette case
                     if (game_pos_x[joueur['pos'][0]], game_pos_y[joueur['pos'][1]]) == (i, j):
-                        l = tk.Label(self.board,
-                                     width=case_jeu_dimensions[0],
-                                     height=case_jeu_dimensions[1],
-                                     relief=tk.FLAT,
-                                     borderwidth=1,
-                                     takefocus=True,
-                                     highlightcolor='red',
-                                     activeforeground='blue',
-                                     activebackground='#ffcc99',
-                                     highlightthickness=self.highlightthickness,
-                                     background='#ffcc99',
-                                     text=str(numero + 1))
-                        l.grid(row=j, column=i)
-                        l.extra = joueur['pos']
-                        l.bind("<Button-1>", self.bouger_joueur)
-                        l.bind("<Enter>", self.hilight)
-                        l.bind("<Leave>", self.unhilight)
+                        self.make_cases(i, j, 'blue', '#ffcc99', t=str(numero + 1))
                         break
                     else:
+                        # Sinon, faire une case de jeu normale
                         if (i in game_pos_x) and (j in game_pos_y):
-                            l = tk.Label(self.board,
-                                         width=case_jeu_dimensions[0],
-                                         height=case_jeu_dimensions[1],
-                                         relief=tk.FLAT,
-                                         borderwidth=1,
-                                         takefocus=True,
-                                         highlightcolor='blue',
-                                         highlightthickness=self.highlightthickness,
-                                         activeforeground='blue',
-                                         activebackground='#f9f9eb',
-                                         background='#f9f9eb',
-                                         text='')
-                            l.grid(row=j, column=i)
-                            l.extra = (game_pos_x.index(i),
-                                       game_pos_y.index(j))
-                            l.bind("<Button-1>", self.bouger_joueur)
-                            l.bind("<Enter>", self.hilight)
-                            l.bind("<Leave>", self.unhilight)
+                            ext = (game_pos_x.index(i),
+                                    game_pos_y.index(j))
+                            self.make_cases(i, j, 'blue', '#f9f9eb', extr=ext)
                 # Murs horizontaux
                 if len(self.murh) > 0:
                     for wallh in self.murh:
                         if (game_pos_x[wallh[0]], game_pos_y[wallh[1]]) == (i, (j - 1)):
-                            tk.Label(self.board,
-                                     width=mur_h_dimensions[0],
-                                     height=mur_h_dimensions[1],
-                                     borderwidth=1,
-                                     relief=tk.FLAT,
-                                     takefocus=True,
-                                     highlightcolor='blue',
-                                     activeforeground='blue',
-                                     activebackground='grey',
-                                     highlightthickness=self.highlightthickness,
-                                     background='grey',
-                                     text='').grid(row=j, column =i)
+                            self.make_murh(i, j, 'blue', 'grey')
                             # remplissage de la case vide
                             tk.Label(self.board,
                                      width=1,
@@ -155,77 +110,28 @@ class QuoridorX(quoridor.Quoridor):
                                      relief=tk.FLAT,
                                      takefocus=True,
                                      highlightcolor='blue',
-                                     highlightthickness=self.highlightthickness,
+                                     highlightthickness=5,
                                      background='grey',
                                      text='').grid(row=j, column=(i + 1))
                             break
                         # décallage: x + 1
                         elif (game_pos_x[(wallh[0] + 1)], game_pos_y[wallh[1]]) == (i, (j - 1)):
-                            tk.Label(self.board,
-                                     width=mur_h_dimensions[0],
-                                     height=mur_h_dimensions[1],
-                                     borderwidth=1,
-                                     relief=tk.FLAT,
-                                     takefocus=True,
-                                     highlightcolor='blue',
-                                     highlightthickness=self.highlightthickness,
-                                     background='grey',
-                                     text='').grid(row=j, column=i)
+                            self.make_murh(i, j, 'blue', 'grey')
                             break
                         else:
                             if (i in game_pos_x) and (j in game_pos_mur):
-                                l = tk.Label(self.board,
-                                             width=mur_h_dimensions[0],
-                                             height=mur_h_dimensions[1],
-                                             background='brown',
-                                             borderwidth=1,
-                                             relief=tk.FLAT,
-                                             takefocus=True,
-                                             highlightcolor='blue',
-                                             activeforeground='blue',
-                                             activebackground='brown',
-                                             highlightthickness=self.highlightthickness,
-                                             text='')
-                                l.grid(row=j, column=i)
-                                l.extra = (game_pos_x.index(i),
-                                           game_pos_y.index(j - 1))
-                                l.bind("<Button-1>", self.placer_murh)
-                                l.bind("<Enter>", self.hilight)
-                                l.bind("<Leave>", self.unhilight)
+                                extr = (game_pos_x.index(i), game_pos_y.index(j - 1))
+                                self.make_murh(i, j, 'blue', 'brown', extr)
+                                               
                 else:
                     if (i in game_pos_x) and (j in game_pos_mur):
-                        l = tk.Label(self.board,
-                                     width=mur_h_dimensions[0],
-                                     height=mur_h_dimensions[1],
-                                     borderwidth=1,
-                                     relief=tk.FLAT,
-                                     takefocus=True,
-                                     highlightcolor='blue',
-                                     activeforeground='blue',
-                                     activebackground='brown',
-                                     highlightthickness=self.highlightthickness,
-                                     background='brown',
-                                     text='')
-                        l.grid(row=j, column=i)
-                        l.extra = (game_pos_x.index(i),
-                                   game_pos_y.index(j - 1))
-                        l.bind("<Button-1>", self.placer_murh)
-                        l.bind("<Enter>", self.hilight)
-                        l.bind("<Leave>", self.unhilight)
+                        extr = (game_pos_x.index(i), game_pos_y.index(j - 1))
+                        self.make_murh(i, j, 'blue', 'brown', extr)
                 #Murs verticaux
                 if len(self.murv) > 0:
                     for wallv in self.murv:
                         if (game_pos_x[wallv[0]], game_pos_y[wallv[1]]) == ((i + 1), j):
-                            tk.Label(self.board,
-                                     width=mur_v_dimensions[0],
-                                     height=mur_v_dimensions[1],
-                                     borderwidth=1,
-                                     relief=tk.FLAT,
-                                     takefocus=True,
-                                     highlightcolor='blue',
-                                     highlightthickness=self.highlightthickness,
-                                     background='grey',
-                                     text='').grid(row=j, column=i)
+                            self.make_murv(i, j, 'blue', 'grey')
                             # remplissage de la case vide
                             tk.Label(self.board,
                                      width=1,
@@ -234,130 +140,105 @@ class QuoridorX(quoridor.Quoridor):
                                      relief=tk.FLAT,
                                      takefocus=True,
                                      highlightcolor='blue',
-                                     highlightthickness=self.highlightthickness,
+                                     highlightthickness=5,
                                      background='grey',
                                      text='').grid(row=(j - 1), column=i)
                             break
                         # décallage: y + 1
                         elif (game_pos_x[wallv[0]], game_pos_y[(wallv[1] + 1)]) == ((i + 1), j):
-                            tk.Label(self.board,
-                                     width=mur_v_dimensions[0],
-                                     height=mur_v_dimensions[1],
-                                     borderwidth=1,
-                                     relief=tk.FLAT,
-                                     takefocus=True,
-                                     highlightcolor='blue',
-                                     highlightthickness=self.highlightthickness,
-                                     background='grey',
-                                     text='').grid(row=j, column=i)
+                            self.make_murv(i, j, 'blue', 'grey')
                             break
                         else:
                             if (i in game_pos_mur) and (j in game_pos_y):
-                                l = tk.Label(self.board,
-                                             width=mur_v_dimensions[0],
-                                             height=mur_v_dimensions[1],
-                                             borderwidth=1,
-                                             relief=tk.FLAT,
-                                             takefocus=True,
-                                             highlightcolor='blue',
-                                             activeforeground='blue',
-                                             activebackground='brown',
-                                             highlightthickness=self.highlightthickness,
-                                             background='brown',
-                                             text=' ')
-                                l.grid(row=j, column=i)
-                                l.extra = (game_pos_x.index(i + 1),
-                                           game_pos_y.index(j))
-                                l.bind("<Button-1>", self.placer_murv)
-                                l.bind("<Enter>", self.hilight)
-                                l.bind("<Leave>", self.unhilight)
+                                extr = (game_pos_x.index(i + 1), game_pos_y.index(j))
+                                self.make_murv(i, j, 'blue', 'brown', extr)
                 else:
                     if (i in game_pos_mur) and (j in game_pos_y):
-                        l = tk.Label(self.board,
-                                     width=mur_v_dimensions[0],
-                                     height=mur_v_dimensions[1],
-                                     borderwidth=1,
-                                     relief=tk.FLAT,
-                                     takefocus=True,
-                                     highlightcolor='blue',
-                                     activeforeground='blue',
-                                     activebackground='brown',
-                                     highlightthickness=self.highlightthickness,
-                                     background='brown',
-                                     text='')
-                        l.grid(row=j, column=i)
-                        l.extra = (game_pos_x.index(i + 1),
-                                   game_pos_y.index(j))
-                        l.bind("<Button-1>", self.placer_murv)
-                        l.bind("<Enter>", self.hilight)
-                        l.bind("<Leave>", self.unhilight)
+                        extr = (game_pos_x.index(i + 1), game_pos_y.index(j))
+                        self.make_murv(i, j, 'blue', 'brown', extr)
 
+    def make_cases(self,i, j, f, b, t='', extr=None):
+        lab = tk.Label(self.board,
+                       width=3,
+                       height=3,
+                       relief=tk.FLAT,
+                       borderwidth=1,
+                       background=b,
+                       activeforeground=f,
+                       activebackground=b,
+                       highlightthickness=5,
+                       text=t)
+        lab.grid(row=j, column=i)
+        if extr:
+            lab.extra = extr
+            lab.bind("<Button-1>", self.bouger_joueur)
+            lab.bind("<Enter>", self.hilight)
+            lab.bind("<Leave>", self.unhilight)
+
+    def make_murh(self, i, j, f, b, extr=None):
+        lab = tk.Label(self.board,
+                       width=3,
+                       height=1,
+                       relief=tk.FLAT,
+                       borderwidth=1,
+                       background=b,
+                       activeforeground=f,
+                       activebackground=b,
+                       highlightthickness=5
+                      )
+        lab.grid(row=j, column=i)
+        if extr:
+            lab.extra = extr
+            lab.bind("<Button-1>", self.placer_murh)
+            lab.bind("<Enter>", self.hilight)
+            lab.bind("<Leave>", self.unhilight)
+    
+    def make_murv(self, i, j, f, b, extr=None):
+        lab = tk.Label(self.board,
+                       width=1,
+                       height=3,
+                       relief=tk.FLAT,
+                       borderwidth=1,
+                       background=b,
+                       activeforeground=f,
+                       activebackground=b,
+                       highlightthickness=5
+                      )
+        lab.grid(row=j, column=i)
+        if extr:
+            lab.extra = extr
+            lab.bind("<Button-1>", self.placer_murv)
+            lab.bind("<Enter>", self.hilight)
+            lab.bind("<Leave>", self.unhilight)
+    
     def afficher(self):
         """met à jours l'affichage
         """
         # lists of equivalent positions
         game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
         game_pos_y = [0, 17, 15, 13, 11, 9, 7, 5, 3, 1]
-        # sizes of the different labels [height, width]
-        case_jeu_dimensions = [3, 3]
-        mur_h_dimensions = [3, 1]
-        mur_v_dimensions = [1, 3]
         # vérifier si le joueur a bougé
         for i in range(2):
             if self.oldjoueurs[i]['pos'] != self.joueurs[i]['pos']:
                 #effacer l'ancienne position du joueur
-                l = tk.Label(self.board,
-                             width=case_jeu_dimensions[0],
-                             height=case_jeu_dimensions[1],
-                             borderwidth=1,
-                             relief=tk.FLAT,
-                             takefocus=True,
-                             highlightcolor='blue',
-                             activeforeground='blue',
-                             activebackground='#f9f9eb',
-                             highlightthickness=self.highlightthickness,
-                             background='#f9f9eb',
-                             text='')
-                l.grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
-                       column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
-                l.extra = self.oldjoueurs[i]['pos']
-                l.bind("<Button-1>", self.bouger_joueur)
-                l.bind("<Enter>", self.hilight)
-                l.bind("<Leave>", self.unhilight)
+                self.make_cases(game_pos_x[self.oldjoueurs[i]['pos'][0]],
+                                game_pos_y[self.oldjoueurs[i]['pos'][1]],
+                                'blue', '#f9f9eb', extr=self.oldjoueurs[i]['pos'])
                 self.oldjoueurs[i]['pos'] = self.joueurs[i]['pos']
-                l = tk.Label(self.board,
-                             width=case_jeu_dimensions[0],
-                             height=case_jeu_dimensions[1],
-                             borderwidth=1,
-                             relief=tk.FLAT,
-                             takefocus=True,
-                             highlightcolor='blue',
-                             highlightthickness=self.highlightthickness,
-                             activeforeground='blue',
-                             activebackground='#ffcc99',
-                             background='#ffcc99',
-                             text=str(i + 1))
-                l.grid(row=game_pos_y[self.oldjoueurs[i]['pos'][1]],
-                       column=game_pos_x[self.oldjoueurs[i]['pos'][0]])
-                l.extra = self.oldjoueurs[i]['pos']
-                l.bind("<Button-1>", self.bouger_joueur)
-                l.bind("<Enter>", self.hilight)
-                l.bind("<Leave>", self.unhilight)
+                # Afficher la nouvelle case du joueur
+                self.make_cases(game_pos_x[self.oldjoueurs[i]['pos'][0]],
+                                game_pos_y[self.oldjoueurs[i]['pos'][1]],
+                                'blue',
+                                '#ffcc99',
+                                t=str(i + 1),
+                                extr=self.oldjoueurs[i]['pos'])
 
         # Vérifier si des murs horizontaux ont été placés
         if self.nombremurh < len(self.murh):
             for i in range(2):
-                tk.Label(self.board,
-                         width=mur_h_dimensions[0],
-                         height=mur_h_dimensions[1],
-                         borderwidth=1,
-                         relief=tk.FLAT,
-                         takefocus=True,
-                         highlightcolor='blue',
-                         highlightthickness=self.highlightthickness,
-                         background='grey',
-                         text='').grid(row=(game_pos_y[self.murh[-1][1]] + 1),
-                                       column=(game_pos_x[self.murh[-1][0]] + (2 * i)))
+                self.make_murh((game_pos_x[self.murh[-1][0]] + (2 * i)),
+                               (game_pos_y[self.murh[-1][1]] + 1),
+                               'blue', 'grey')
             # Remplissage de la case vide
             tk.Label(self.board,
                      width=1,
@@ -375,17 +256,9 @@ class QuoridorX(quoridor.Quoridor):
         # Vérifier si des murs verticaux ont été placés
         if self.nombremurv < len(self.murv):
             for i in range(2):
-                tk.Label(self.board,
-                         width=mur_v_dimensions[0],
-                         height=mur_v_dimensions[1],
-                         borderwidth=1,
-                         relief=tk.FLAT,
-                         takefocus=True,
-                         highlightcolor='blue',
-                         highlightthickness=self.highlightthickness,
-                         background='grey',
-                         text='').grid(row=(game_pos_y[self.murv[-1][1]] - (2 * i)),
-                                       column=(game_pos_x[self.murv[-1][0]] - 1))
+                self.make_murv((game_pos_x[self.murv[-1][0]] - 1),
+                               (game_pos_y[self.murv[-1][1]] - (2 * i)),
+                               'blue', 'grey')
             # Remplissage de la case vide
             tk.Label(self.board,
                      width=1,
@@ -394,7 +267,7 @@ class QuoridorX(quoridor.Quoridor):
                      relief=tk.FLAT,
                      takefocus=True,
                      highlightcolor='blue',
-                     highlightthickness=self.highlightthickness,
+                     highlightthickness=5,
                      background='grey',
                      text='').grid(row=(game_pos_y[self.murv[-1][1]] - 1),
                                    column=(game_pos_x[self.murv[-1][0]] - 1))
@@ -404,8 +277,8 @@ class QuoridorX(quoridor.Quoridor):
         for num, joueur in enumerate(self.joueurs):
             if joueur['murs'] != self.oldjoueurs[num]['murs']:
                 tk.Label(self.murholders[num],
-                         width=mur_v_dimensions[0],
-                         height=mur_v_dimensions[1],
+                         width=1,
+                         height=3,
                          padx=5,
                          background='white',
                          text='').grid(column=(joueur['murs'] + 2), row=1)

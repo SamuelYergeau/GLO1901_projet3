@@ -372,6 +372,17 @@ class Quoridor:
                     "verticaux": self.murv
                     }}
 
+    def switch_mur(self, chemin1, chemin2, joueur, pos, sens):
+        """Simple fonction pour alléger auto_placer_mur
+        Vérifie que le coup peut être joué et agence les datas dans la réponse
+        Returns:
+            [list] -- le coup à jouer, agencé dans le bon ordre
+        """
+        self.placer_mur(joueur, pos, sens)
+        if sens == 'horizontal':
+            return ('MH', pos[0], pos[1])
+        return ('MV', pos[0], pos[1])
+
     def auto_placer_mur(self, joueur, chemin1, chemin2, attempts):
         """fonction pour assister jouer_coup
         Place un mur automatiquement dans le chemin du joueur adverse
@@ -430,11 +441,7 @@ class Quoridor:
                                                      objectifs[(adversaire - 1)])
                             # comparer les nouveau chemins à ceux de départ
                             if len(chem2) > len(chemin2) and len(chem1) <= len(chemin1):
-                                self.placer_mur(joueur, pos, sens)
-                                if sens == 'horizontal':
-                                    return ('MH', pos[0], pos[1])
-                                else:
-                                    return ('MV', pos[0], pos[1])
+                                return self.switch_mur(chemin1, chemin2, joueur, pos, sens)
                         # Si le mur ne peut pas être placé, essayer le prochain
                         except nx.exception.NetworkXError:
                             continue
