@@ -4,7 +4,6 @@ import unittest
 import networkx as nx
 from quoridor import Quoridor
 from quoridor import QuoridorError
-import quoridor
 
 
 class TestQuoridor(unittest.TestCase):
