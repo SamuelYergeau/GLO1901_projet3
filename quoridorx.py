@@ -6,14 +6,14 @@ import copy
 import quoridor
 
 
-def hilight(self, event):
+def hilight(event):
     """Handler pour hilighter une case
     l'orsque la sourie passe dessus
     Arguments:
         event {event} -- le widget ciblé
     """
     event.widget['bg'] = event.widget['activeforeground']
-def unhilight(self, event):
+def unhilight(event):
     """Handler pour dé-hilighter une case
     l'orsque la sourie passe dessus
     Arguments:

@@ -28,8 +28,8 @@ Contient les fonctions:
 '''
 import argparse
 import copy
-import networkx as nx
 from tkinter import messagebox as mb
+import networkx as nx
 import api
 import quoridor
 import quoridorx
@@ -135,9 +135,9 @@ def prompt_player():
 
 
 def autocommande(jeu):
-    """handler pour la mode automatique je jeu    
+    """handler pour la mode automatique je jeu
     Arguments:
-        jeu {Quoridor} -- instance du jeu courrant    
+        jeu {Quoridor} -- instance du jeu courrant
     Returns:
         list -- liste du coup à envoyer au serveur
     """
@@ -190,12 +190,12 @@ def jeu_console_serveur(idul, automode=False):
 
 
 def check_task(jeu, task, automode=False):
-    """vérification du async task handling de la classe QuoridorX    
+    """vérification du async task handling de la classe QuoridorX
     Arguments:
         jeu {QuoridorX} -- Instance du jeu courant
-        task {list} -- dernière task connue    
+        task {list} -- dernière task connue
     Keyword Arguments:
-        automode {bool} -- Si la tache doit être obtenue du AI (default: {False})    
+        automode {bool} -- Si la tache doit être obtenue du AI (default: {False})
     Returns:
         [list] -- la nouvelle task si nouvelle task. False sinon
     """
@@ -204,11 +204,10 @@ def check_task(jeu, task, automode=False):
         if task != jeu.task:
             return jeu.task
         return False
-    else:
-        murs = {'horizontaux':jeu.murh,
-                'verticaux':jeu.murv}
-        qjeu = quoridor.Quoridor(jeu.joueurs, murs)
-        return autocommande(qjeu)
+    murs = {'horizontaux':jeu.murh,
+            'verticaux':jeu.murv}
+    qjeu = quoridor.Quoridor(jeu.joueurs, murs)
+    return autocommande(qjeu)
 
 
 def jeu_graphique_serveur(idul, automode=False):
@@ -234,6 +233,7 @@ def jeu_graphique_serveur(idul, automode=False):
                 if not verifier_validite(jeu, coup):
                     mb.showerror("Erreur!", "Coup invalide!")
                     continue
+                jeu.afficher()
                 nouveaujeu = api.jouer_coup(jeu.gameid, coup[0], (coup[1], coup[2]))
                 jeu.joueurs = nouveaujeu['joueurs']
                 jeu.murh = nouveaujeu['murs']['horizontaux']
