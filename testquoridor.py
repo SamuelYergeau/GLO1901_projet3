@@ -1,9 +1,9 @@
 """Module pour tester quoridor.py
 """
-from quoridor import Quoridor
-from quoridor import QuoridorError
 import unittest
 import networkx as nx
+from quoridor import Quoridor
+from quoridor import QuoridorError
 
 
 class TestQuoridor(unittest.TestCase):
