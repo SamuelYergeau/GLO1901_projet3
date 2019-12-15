@@ -2,10 +2,24 @@
 Module pour contenir la classe QuoridorX
 """
 import tkinter as tk
-import networkx as nx
 import copy
-from tkinter import messagebox as mb
 import quoridor
+
+
+def hilight(self, event):
+    """Handler pour hilighter une case
+    l'orsque la sourie passe dessus
+    Arguments:
+        event {event} -- le widget ciblé
+    """
+    event.widget['bg'] = event.widget['activeforeground']
+def unhilight(self, event):
+    """Handler pour dé-hilighter une case
+    l'orsque la sourie passe dessus
+    Arguments:
+        event {event} -- le widget ciblé
+    """
+    event.widget['bg'] = event.widget['activebackground']
 
 
 class QuoridorX(quoridor.Quoridor):
@@ -156,60 +170,6 @@ class QuoridorX(quoridor.Quoridor):
                     if (i in game_pos_mur) and (j in game_pos_y):
                         extr = (game_pos_x.index(i + 1), game_pos_y.index(j))
                         self.make_murv(i, j, 'blue', 'brown', extr)
-
-    def make_cases(self,i, j, f, b, t='', extr=None):
-        lab = tk.Label(self.board,
-                       width=3,
-                       height=3,
-                       relief=tk.FLAT,
-                       borderwidth=1,
-                       background=b,
-                       activeforeground=f,
-                       activebackground=b,
-                       highlightthickness=5,
-                       text=t)
-        lab.grid(row=j, column=i)
-        if extr:
-            lab.extra = extr
-            lab.bind("<Button-1>", self.bouger_joueur)
-            lab.bind("<Enter>", self.hilight)
-            lab.bind("<Leave>", self.unhilight)
-
-    def make_murh(self, i, j, f, b, extr=None):
-        lab = tk.Label(self.board,
-                       width=3,
-                       height=1,
-                       relief=tk.FLAT,
-                       borderwidth=1,
-                       background=b,
-                       activeforeground=f,
-                       activebackground=b,
-                       highlightthickness=5
-                      )
-        lab.grid(row=j, column=i)
-        if extr:
-            lab.extra = extr
-            lab.bind("<Button-1>", self.placer_murh)
-            lab.bind("<Enter>", self.hilight)
-            lab.bind("<Leave>", self.unhilight)
-    
-    def make_murv(self, i, j, f, b, extr=None):
-        lab = tk.Label(self.board,
-                       width=1,
-                       height=3,
-                       relief=tk.FLAT,
-                       borderwidth=1,
-                       background=b,
-                       activeforeground=f,
-                       activebackground=b,
-                       highlightthickness=5
-                      )
-        lab.grid(row=j, column=i)
-        if extr:
-            lab.extra = extr
-            lab.bind("<Button-1>", self.placer_murv)
-            lab.bind("<Enter>", self.hilight)
-            lab.bind("<Leave>", self.unhilight)
     
     def afficher(self):
         """met à jours l'affichage
@@ -285,6 +245,60 @@ class QuoridorX(quoridor.Quoridor):
                 self.oldjoueurs[num]['murs'] = joueur['murs']
         self.root.update()
 
+    def make_cases(self,i, j, f, b, t='', extr=None):
+        lab = tk.Label(self.board,
+                       width=3,
+                       height=3,
+                       relief=tk.FLAT,
+                       borderwidth=1,
+                       background=b,
+                       activeforeground=f,
+                       activebackground=b,
+                       highlightthickness=5,
+                       text=t)
+        lab.grid(row=j, column=i)
+        if extr:
+            lab.extra = extr
+            lab.bind("<Button-1>", self.bouger_joueur)
+            lab.bind("<Enter>", hilight)
+            lab.bind("<Leave>", unhilight)
+
+    def make_murh(self, i, j, f, b, extr=None):
+        lab = tk.Label(self.board,
+                       width=3,
+                       height=1,
+                       relief=tk.FLAT,
+                       borderwidth=1,
+                       background=b,
+                       activeforeground=f,
+                       activebackground=b,
+                       highlightthickness=5
+                      )
+        lab.grid(row=j, column=i)
+        if extr:
+            lab.extra = extr
+            lab.bind("<Button-1>", self.placer_murh)
+            lab.bind("<Enter>", hilight)
+            lab.bind("<Leave>", unhilight)
+    
+    def make_murv(self, i, j, f, b, extr=None):
+        lab = tk.Label(self.board,
+                       width=1,
+                       height=3,
+                       relief=tk.FLAT,
+                       borderwidth=1,
+                       background=b,
+                       activeforeground=f,
+                       activebackground=b,
+                       highlightthickness=5
+                      )
+        lab.grid(row=j, column=i)
+        if extr:
+            lab.extra = extr
+            lab.bind("<Button-1>", self.placer_murv)
+            lab.bind("<Enter>", hilight)
+            lab.bind("<Leave>", unhilight)
+    
     def bouger_joueur(self, event):
         """handler pour l'event levée l'orsqu'on clique sur une
         case de déplacement de joueur
@@ -315,23 +329,7 @@ class QuoridorX(quoridor.Quoridor):
                      event.widget.extra[0],
                      event.widget.extra[1]]
 
-    def hilight(self, event):
-        """Handler pour hilighter une case
-        l'orsque la sourie passe dessus
-        Arguments:
-            event {event} -- le widget ciblé
-        """
-        event.widget['bg'] = event.widget['activeforeground']
-
-    def unhilight(self, event):
-        """Handler pour dé-hilighter une case
-        l'orsque la sourie passe dessus
-        Arguments:
-            event {event} -- le widget ciblé
-        """
-        event.widget['bg'] = event.widget['activebackground']
-
 
 if __name__ == '__main__':
-    test = QuoridorX(['joueur1', 'joueur2'])
+    QO = QuoridorX(['joueur1', 'joueur2'])
     tk.mainloop()
