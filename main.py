@@ -28,12 +28,11 @@ Contient les fonctions:
 '''
 import argparse
 import copy
-import tkinter as tk
 import networkx as nx
+from tkinter import messagebox as mb
 import api
 import quoridor
 import quoridorx
-from tkinter import messagebox as mb
 
 
 def analyser_commande():
@@ -86,7 +85,7 @@ def listing(idul):
 
 
 def verifier_validite(jeu, coup):
-    """fonction pour vérifier que les coups à jouer sont valides    
+    """fonction pour vérifier que les coups à jouer sont valides
     Arguments:
         jeu {[type]} -- [description]
         coup {[type]} -- [description]
@@ -136,6 +135,12 @@ def prompt_player():
 
 
 def autocommande(jeu):
+    """handler pour la mode automatique je jeu    
+    Arguments:
+        jeu {Quoridor} -- instance du jeu courrant    
+    Returns:
+        list -- liste du coup à envoyer au serveur
+    """
     # faire une copie du jeu
     tempjeu = copy.deepcopy(jeu)
     try:
@@ -185,10 +190,20 @@ def jeu_console_serveur(idul, automode=False):
 
 
 def check_task(jeu, task, automode=False):
+    """vérification du async task handling de la classe QuoridorX    
+    Arguments:
+        jeu {QuoridorX} -- Instance du jeu courant
+        task {list} -- dernière task connue    
+    Keyword Arguments:
+        automode {bool} -- Si la tache doit être obtenue du AI (default: {False})    
+    Returns:
+        [list] -- la nouvelle task si nouvelle task. False sinon
+    """
     if not automode:
         # Vérifier si une nouvelle tâche a été entrée
         if task != jeu.task:
             return jeu.task
+        return False
     else:
         murs = {'horizontaux':jeu.murh,
                 'verticaux':jeu.murv}
