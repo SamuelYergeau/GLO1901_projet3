@@ -46,7 +46,7 @@ def analyser_commande():
         Un objet argparse.ArgumentParser contenant la réponse du joueur
     '''
     parser = argparse.ArgumentParser(
-        description="Jeu Quoridor - phase 1"
+        description="Jeu Quoridor - phase 3"
     )
     # indiquer au joueur d'entrer son nom
     parser.add_argument('-a', '--automatique',
