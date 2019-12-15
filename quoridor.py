@@ -430,6 +430,7 @@ class Quoridor:
                     # Si le mur ne peut pas être placé, essayer le prochain
                     except nx.exception.NetworkXError:
                         continue
+            return False
         # Si le mur ne peut pas être placé, essayer avec la prochaine position
         except (QuoridorError,
                 nx.exception.NetworkXError,

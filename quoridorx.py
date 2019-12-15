@@ -53,19 +53,9 @@ class QuoridorX(quoridor.Quoridor):
         # dresser la table de jeu
         for i, j in itertools.product(range(1, 18), range(1, 18)):
             # Cases de jeu principales
-            for numero, joueur in enumerate(self.joueurs):
-                # Si un joueur est sur cette case
-                if (game_pos_x[joueur['pos'][0]], game_pos_y[joueur['pos'][1]]) == (i, j):
-                    self.make_cases(i, j, 'blue', '#ffcc99', t=str(numero + 1))
-                    break
-                else:
-                    # Sinon, faire une case de jeu normale
-                    if (i in game_pos_x) and (j in game_pos_y):
-                        self.make_cases(i, j, 'blue', '#f9f9eb',
-                                        extr=(game_pos_x.index(i),
-                                              game_pos_y.index(j)))
+            self.make_board_cases(i, j)
             # Murs horizontaux
-            if len(self.murh) > 0:
+            if self.murh:
                 for wallh in self.murh:
                     if (game_pos_x[wallh[0]], game_pos_y[wallh[1]]) == (i, (j - 1)):
                         self.make_murh(i, j, 'blue', 'grey')
@@ -95,7 +85,7 @@ class QuoridorX(quoridor.Quoridor):
                     self.make_murh(i, j, 'blue', 'brown',
                                    (game_pos_x.index(i), game_pos_y.index(j - 1)))
             #Murs verticaux
-            if len(self.murv) > 0:
+            if self.murv:
                 for wallv in self.murv:
                     if (game_pos_x[wallv[0]], game_pos_y[wallv[1]]) == ((i + 1), j):
                         self.make_murv(i, j, 'blue', 'grey')
@@ -199,6 +189,24 @@ class QuoridorX(quoridor.Quoridor):
                 self.oldjoueurs[num]['murs'] = joueur['murs']
         self.root.update()
 
+    def make_board_cases(self, i, j):
+        """Simple handler pour alléger __init__
+        """
+        game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
+        game_pos_y = [0, 17, 15, 13, 11, 9, 7, 5, 3, 1]
+        # Cases de jeu principales
+        for numero, joueur in enumerate(self.joueurs):
+            # Si un joueur est sur cette case
+            if (game_pos_x[joueur['pos'][0]], game_pos_y[joueur['pos'][1]]) == (i, j):
+                self.make_cases(i, j, 'blue', '#ffcc99', t=str(numero + 1))
+                break
+            else:
+                # Sinon, faire une case de jeu normale
+                if (i in game_pos_x) and (j in game_pos_y):
+                    self.make_cases(i, j, 'blue', '#f9f9eb',
+                                    extr=(game_pos_x.index(i),
+                                          game_pos_y.index(j)))
+    
     def make_board(self):
         """Handler pour construire le tableau autour du jeu
         """
@@ -250,7 +258,7 @@ class QuoridorX(quoridor.Quoridor):
                         row=3,
                         rowspan=17,
                         sticky='n')
-    
+
     def make_cases(self, i, j, fr, ba, t='', extr=None):
         """Handler pour créer les cases principales du jeu
         Arguments:
