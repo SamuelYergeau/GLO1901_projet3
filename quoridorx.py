@@ -38,7 +38,6 @@ class QuoridorX(quoridor.Quoridor):
         super().__init__(joueurs, murs)
         self.root = tk.Tk()
         self.root.lift()
-        #self.posjoueurs = [self.joueurs[0]['pos'], self.joueurs[1]['pos']]
         self.oldjoueurs = copy.deepcopy(self.joueurs)
         self.nombremurh = len(self.murh)
         self.nombremurv = len(self.murv)
@@ -53,37 +52,7 @@ class QuoridorX(quoridor.Quoridor):
         # dresser la table de jeu
         for i, j in itertools.product(range(1, 18), range(1, 18)):
             # Cases de jeu principales
-            self.make_board_cases(i, j)
-            # Murs horizontaux
-            if self.murh:
-                for wallh in self.murh:
-                    if (game_pos_x[wallh[0]], game_pos_y[wallh[1]]) == (i, (j - 1)):
-                        self.make_murh(i, j, 'blue', 'grey')
-                        # remplissage de la case vide
-                        tk.Label(self.board,
-                                 width=1,
-                                 height=1,
-                                 borderwidth=1,
-                                 relief=tk.FLAT,
-                                 takefocus=True,
-                                 highlightcolor='blue',
-                                 highlightthickness=5,
-                                 background='grey',
-                                 text='').grid(row=j, column=(i + 1))
-                        break
-                    # décallage: x + 1
-                    elif (game_pos_x[(wallh[0] + 1)], game_pos_y[wallh[1]]) == (i, (j - 1)):
-                        self.make_murh(i, j, 'blue', 'grey')
-                        break
-                    else:
-                        if (i in game_pos_x) and (j in game_pos_mur):
-                            self.make_murh(i, j, 'blue', 'brown',
-                                           (game_pos_x.index(i),
-                                            game_pos_y.index(j - 1)))
-            else:
-                if (i in game_pos_x) and (j in game_pos_mur):
-                    self.make_murh(i, j, 'blue', 'brown',
-                                   (game_pos_x.index(i), game_pos_y.index(j - 1)))
+            self.make_board_start(i, j)
             #Murs verticaux
             if self.murv:
                 for wallv in self.murv:
@@ -189,11 +158,12 @@ class QuoridorX(quoridor.Quoridor):
                 self.oldjoueurs[num]['murs'] = joueur['murs']
         self.root.update()
 
-    def make_board_cases(self, i, j):
+    def make_board_start(self, i, j):
         """Simple handler pour alléger __init__
         """
         game_pos_x = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17]
         game_pos_y = [0, 17, 15, 13, 11, 9, 7, 5, 3, 1]
+        game_pos_mur = [0, 2, 4, 6, 8, 10, 12, 14, 16]
         # Cases de jeu principales
         for numero, joueur in enumerate(self.joueurs):
             # Si un joueur est sur cette case
@@ -206,7 +176,37 @@ class QuoridorX(quoridor.Quoridor):
                     self.make_cases(i, j, 'blue', '#f9f9eb',
                                     extr=(game_pos_x.index(i),
                                           game_pos_y.index(j)))
-    
+        # Murs horizontaux
+        if self.murh:
+            for wallh in self.murh:
+                if (game_pos_x[wallh[0]], game_pos_y[wallh[1]]) == (i, (j - 1)):
+                    self.make_murh(i, j, 'blue', 'grey')
+                    # remplissage de la case vide
+                    tk.Label(self.board,
+                             width=1,
+                             height=1,
+                             borderwidth=1,
+                             relief=tk.FLAT,
+                             takefocus=True,
+                             highlightcolor='blue',
+                             highlightthickness=5,
+                             background='grey',
+                             text='').grid(row=j, column=(i + 1))
+                    break
+                # décallage: x + 1
+                elif (game_pos_x[(wallh[0] + 1)], game_pos_y[wallh[1]]) == (i, (j - 1)):
+                    self.make_murh(i, j, 'blue', 'grey')
+                    break
+                else:
+                    if (i in game_pos_x) and (j in game_pos_mur):
+                        self.make_murh(i, j, 'blue', 'brown',
+                                       (game_pos_x.index(i),
+                                        game_pos_y.index(j - 1)))
+        else:
+            if (i in game_pos_x) and (j in game_pos_mur):
+                self.make_murh(i, j, 'blue', 'brown',
+                               (game_pos_x.index(i), game_pos_y.index(j - 1)))
+
     def make_board(self):
         """Handler pour construire le tableau autour du jeu
         """

@@ -615,5 +615,5 @@ class Quoridor:
 
 #Lancer la batterie de tests unitaires l'orsque ce module est lancé en tant que main (pas importé)
 if __name__ == '__main__':
-    from testquoridor import TestQuoridor
-    unittest.main(argv=[''], verbosity=2, exit=False)
+    import testquoridor
+    unittest.main(module=testquoridor.__name__ , argv=[''], verbosity=2, exit=False)
